@@ -2,7 +2,7 @@
 
 class Telemetry {
 public:
-    void read(tl);
+    void read();
 
 private:
     float current_ma;
