@@ -32,4 +32,16 @@ This API will provide detailed information about the status of the vehicle and
 its power supply, which will be educational for the students because it will
 introduce them to concepts such as power, voltage, and current. Being able to
 manipulate the vehicle and observe how its power supply reacts will help them
-develop an intuition for these concepts.
+develop an intuition for these concepts. This also ties into the requirement
+that user will be able to see the instantaneous power draw over time during the
+competition.
+
+
+### API Functions
+
+| Command   | Description                                   |
+|-----------|-----------------------------------------------|
+| START     | Starts the vehicle                            |
+| STOP      | Stops the vehicle                             |
+| TELEMETRY | Requests telemetry data from the vehicle      |
+|           | This includes battery voltage, current, power |
