@@ -2,13 +2,13 @@
 
 ## Where to find the code
 
-The most up to date code includes everything in the `src` directory.
-The `telemetry` files are for gathering telemetry to be sent from the device,
+The most up to date code includes everything in the [`src`](src) directory.
+The [`telemetry`](src/telemetry.h) files are for gathering telemetry to be sent from the device,
 like the current use or battery voltage.
-The `camera` files are for reading from the HuskyLens camera and calculating
+The [`camera`](src/camera.h) files are for reading from the HuskyLens camera and calculating
 the angle/offset of the vehicle relative to the line.
-The `bt` files are for providing an API over Bluetooth to control the vehicle.
-The `main` files hold the setup and loop functions.
+The [`bt`](src/bt.h) files are for providing an API over Bluetooth to control the vehicle.
+The [`main`](src/main.ino) files hold the setup and loop functions.
 
 
 ## State Diagram
