@@ -8,6 +8,7 @@
 
 Servo motorServo;
 Servo steeringServo;
+// PID objects. Variables are placeholders
 FastPid angle_pid(Kp1, Ki1, Hz, output_bits, output_signed);
 FastPid speed_pid(Kp2, Ki2, Hz, output_bits, output_signed);
 
@@ -35,10 +36,12 @@ void setup() {
 }
 
 void loop() {
+    // Handle API command
     bt.handle_cmd();
 
     if (stop) return;
 
+    // Update PID loop based on camera values
     camera.read();
     uint8_t speed_setpoint = angle_pid.step(0, camera.angle);
     uint8_t new_speed = speed_pid.step(speed_setpoint, camera.offset);
