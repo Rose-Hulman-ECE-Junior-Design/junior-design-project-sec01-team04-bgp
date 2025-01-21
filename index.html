@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base target="_blank" rel="noopener noreferrer" />
+
+    <title>BGP Vehicle Dashboard</title>
+  </head>
+  <body>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <table>
+      <tr>
+        <th>Current (mA)</th>
+        <th>Battery Voltage (V)</th>
+      </tr>
+      <tr>
+        <td id="current"></td>
+        <td id="voltage"></td>
+      </tr>
+    <table>
+  </body>
+  <script src="https://cdn.privex.io/lib/simple-jsonrpc/1.0.0/simple-jsonrpc-js.min.js" 
+    integrity="sha384-AlmC3wzXXhOcKeP42iv0VOyrxth6bLTmu4l4YgK9oii9MArKWpLFBfrFN91OxnEO" 
+    crossorigin="anonymous"></script>
+  <script>
+      var jrpc = simple_jsonrpc.connect_xhr('http://192.168.0.1:80');
+      var start = document.getElementById('start');
+      var stop = document.getElementById('stop')
+      var current = document.getElementById('current')
+      var voltage = document.getElementById('voltage')
+
+      start.onclick = function() {
+        jrpc.call('start', []).then(function(res) {
+            console.log("Started vehicle");
+        });
+      };
+
+      stop.onclick = function() {
+        jrpc.call('stop', []).then(function(res) {
+            console.log("Stopped vehicle");
+        });
+      };
+
+      setInterval(function() {
+        jrpc.call('telemetry').then(function(res) {
+          current.innerHTML = res.current_ma;
+          voltage.innerHTML = res.battery_v;
+        });
+      }, 1000);
+  </script>
+</script>
+</html>

@@ -1,66 +1,83 @@
 #include <ESP32Servo.h>
 #include <FastPID.h>
 
-#include "main.h"
-#include "bt.h"
+#include "telemetry.h"
+#include "state.h"
+#include "api.h"
 
 #define PRINTLN(arg) Serial.println(arg); SerialBT.println(arg)
 
-Servo motorServo;
-Servo steeringServo;
+Servo motor_servo;
+Servo steering_servo;
 // PID objects. Variables are placeholders
-FastPid angle_pid(Kp1, Ki1, Hz, output_bits, output_signed);
-FastPid speed_pid(Kp2, Ki2, Hz, output_bits, output_signed);
+uint16_t Kp1, Kp2, Ki1, Ki2, Kd1, Kd2, Hz, output_bits, output_signed;
+FastPid angle_pid(Kp1, Ki1, Kd1, Hz, output_bits, output_signed);
+FastPid speed_pid(Kp2, Ki2, Kd2, Hz, output_bits, output_signed);
 
+Telemetry tl;
+VehicleState state;
 Camera camera;
-Bluetooth bt;
+Api api(&tl, &state);
 
-const int steeringServoPin = 32;
-const int motorServoPin = 33;
+const int steering_servo_pin = 32;
+const int motor_servo_pin = 33;
 
 void setup() {
     Serial.begin(115200);
-    bt.init("ECE362CarTeam04");
+    api.init();
     delay(2000);
 
+    // Init PID controllers
+    angle_pid.setOutputRange(10, 170);
+    speed_pid.setOutputRange(50, 120);
+
     // Init motors
-    motorServo.attach(motorServoPin, 800, 2000);
-    steeringServo.attach(steeringServoPin, 800, 2000);
+    motor_servo.attach(motor_servo_pin, 800, 2000);
+    steering_servo.attach(steering_servo_pin, 800, 2000);
     delay(1000);
-    motorServo.write(0);
-    steeringServo.write(0);
+    motor_servo.write(0);
+    steering_servo.write(0);
     delay(3000);
 
     // Init camera
     camera.init();
 }
 
-void loop() {
-    // Handle API command
-    bt.handle_cmd();
-
-    if (stop) return;
-
+// Update motor speed and steering angle
+void update() {
     // Update PID loop based on camera values
     camera.read();
-    uint8_t speed_setpoint = angle_pid.step(0, camera.angle);
-    uint8_t new_speed = speed_pid.step(speed_setpoint, camera.offset);
-    motorServo.write(new_speed);
+
+    uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
+    uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
+    steering_servo.write(new_angle);
+
+    motor_servo.write(50); // TODO: Setup PID loop. For now, just using min speed
+}
+
+void loop() {
+    switch (state) {
+    case VehicleState::started:
+        update();
+        break;
+    case VehicleState::stopped:
+        break;
+    }
 }
 
 // Leftover testing functions
 void testServos(void) {
-    motorServo.write(120);
-    steeringServo.write(10);
+    motor_servo.write(120);
+    steering_servo.write(10);
     delay(1000);
-    motorServo.write(85);
-    steeringServo.write(90);
+    motor_servo.write(85);
+    steering_servo.write(90);
     delay(1000);
-    motorServo.write(50);
-    steeringServo.write(170);
+    motor_servo.write(50);
+    steering_servo.write(170);
     delay(1000);
-    motorServo.write(0);
-    steeringServo.write(90);
+    motor_servo.write(0);
+    steering_servo.write(90);
 }
 
 void testCamera(void) {
