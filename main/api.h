@@ -9,17 +9,17 @@ const char* password = nullptr;
 
 class Api {
 public:
-    Api(Telemetry* tl, VehicleState* st) : tl(tl), st(st) {};
+    Api(Telemetry* tl, VehicleState* st) : tl(tl), st(st), server(80) {};
 
     void init();
-private:
-    AsyncWebServer server(80);
-    Telemetry* tl;
-    VehicleState* st;
-
+    
     void start();
 
     void stop();
 
     TelemetryData telemetry();
+private:
+    AsyncWebServer server;
+    Telemetry* tl;
+    VehicleState* st;
 };

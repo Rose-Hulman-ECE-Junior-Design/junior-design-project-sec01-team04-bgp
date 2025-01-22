@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Adafruit_INA219.h>
 
 typedef struct {
@@ -8,6 +10,7 @@ typedef struct {
 // Class to handle reading telemetry data from vehicle
 class Telemetry {
 public:
+    void init();
     TelemetryData read();
 
 private:

@@ -10,7 +10,7 @@ void Telemetry::init() {
 
 TelemetryData Telemetry::read() {
     TelemetryData result;
-    result.current_ma = this.ina219.getCurrent_mA();
-    result.battery_v = this.ina219.getBusVoltage_V();
+    result.current_ma = this->ina219.getCurrent_mA();
+    result.battery_v = this->ina219.getBusVoltage_V();
     return result;
 }

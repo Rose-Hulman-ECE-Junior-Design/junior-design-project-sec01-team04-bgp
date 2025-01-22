@@ -1,3 +1,5 @@
+#pragma once
+
 #include "HUSKYLENS.h"
 
 // Class to read and interpret data from the HuskyLens camera
