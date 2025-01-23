@@ -4,7 +4,7 @@
 #include "telemetry.h"
 #include "state.h"
 
-const char* ssid = "ECE362CarTeam04";
+const char* ssid = "ECE362TeamBGP";
 const char* password = nullptr;
 
 class Api {

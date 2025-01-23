@@ -10,6 +10,7 @@ typedef struct {
 
 void Api::start() {
     *this->st = VehicleState::started;
+    Serial.println("Started!");
 }
 
 static void handle_start(struct jsonrpc_request* r) {
@@ -20,6 +21,7 @@ static void handle_start(struct jsonrpc_request* r) {
 
 void Api::stop() {
     *this->st = VehicleState::stopped;
+    Serial.println("Stopped!");
 }
 
 static void handle_stop(struct jsonrpc_request* r) {
@@ -29,6 +31,7 @@ static void handle_stop(struct jsonrpc_request* r) {
 }
 
 TelemetryData Api::telemetry() {
+    Serial.println("Sending telemetry");
     return this->tl->read();
 }
 
@@ -42,21 +45,30 @@ static int sender(const char* frame, int frame_len, void* ctx) {
     AsyncWebServerRequest* request = ((Context*)ctx)->request;
     AsyncWebServerResponse* response = request->beginResponse_P(200, "application/json-rpc", (uint8_t*)frame, frame_len);
     request->send(response);
+    return frame_len;
 }
 
 void Api::init() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(ssid, password);
-    Serial.print("Connecting to WiFi");
-    while (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
-        delay(1000);
-    }
-    Serial.println("\nConnected");
+    // WiFi.setTxPower(WIFI_POWER_5dBm);
+    // WiFi.disconnect(true); 
+    // WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    // Serial.print("Connecting to WiFi");
+    // while (WiFi.status() != WL_CONNECTED) {
+    //     Serial.print(".");
+    //     delay(1000);
+    // }
+    // Serial.println("\nConnected");
+    delay(1000);
 
-    Serial.println("Starting server on " + WiFi.softAPIP());
+    Serial.print("Starting server on ");
+    Serial.println(WiFi.softAPIP());
+    // Serial.println(WiFi.localIP());
 
-    this->server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest* request) {
+    Serial.println("Initializing server callbacks");
+    this->server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
         request->send(200, "text/html", index_html);
     });
 

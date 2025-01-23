@@ -28,13 +28,13 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
 
-    Serial.println("Starting API");
     api.init();
-    Serial.println("Started API");
+    Serial.println("Initialized API");
 
     // Init PID controllers
     angle_pid.setOutputRange(10, 170);
     speed_pid.setOutputRange(50, 120);
+    Serial.println("Initialized PID controllers");
 
     // Init motors
     motor_servo.attach(motor_servo_pin, 800, 2000);
@@ -43,9 +43,11 @@ void setup() {
     motor_servo.write(0);
     steering_servo.write(0);
     delay(3000);
+    Serial.println("Initialized motors");
 
     // Init camera
     camera.init();
+    Serial.println("Initialized camera");
 }
 
 // Update motor speed and steering angle

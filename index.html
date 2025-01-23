@@ -22,33 +22,53 @@
       </tr>
     <table>
   </body>
-  <script src="https://cdn.privex.io/lib/simple-jsonrpc/1.0.0/simple-jsonrpc-js.min.js" 
-    integrity="sha384-AlmC3wzXXhOcKeP42iv0VOyrxth6bLTmu4l4YgK9oii9MArKWpLFBfrFN91OxnEO" 
-    crossorigin="anonymous"></script>
   <script>
-      var jrpc = simple_jsonrpc.connect_xhr('http://192.168.0.1:80');
+      var url = 'https://192.168.4.1/api';
+			var i = 1;
+
+      function json_rpc_call(method, params, callback) {
+				var xhr = new XMLHTTPRequest();
+
+				xhr.setRequestHeader('Content-Type', 'application/json-rpc');
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						callback(JSON.parse(xhr.responseText);
+					}
+				};
+
+				var data = JSON.stringify({
+					"jsonrpc": "2.0",
+					"method": method,
+					"params": params,
+					"id": i++,
+				});
+
+				xhr.open('POST', url, true);
+				xhr.send(data);
+      }
+
       var start = document.getElementById('start');
       var stop = document.getElementById('stop')
       var current = document.getElementById('current')
       var voltage = document.getElementById('voltage')
 
       start.onclick = function() {
-        jrpc.call('start', []).then(function(res) {
-            console.log("Started vehicle");
-        });
+				json_rpc_call('start', [], () => {
+					console.log("Started vehicle");
+				});
       };
 
       stop.onclick = function() {
-        jrpc.call('stop', []).then(function(res) {
-            console.log("Stopped vehicle");
-        });
+				json_rpc_call('stop', [], () => {
+					console.log("Stopped vehicle");
+				});
       };
 
       setInterval(function() {
-        jrpc.call('telemetry').then(function(res) {
-          current.innerHTML = res.current_ma;
-          voltage.innerHTML = res.battery_v;
-        });
+				json_rpc_call('telemetry', [], (res) => {
+					current.innerHTML = res.current_ma;
+					voltage.innerHTML = res.battery_v;
+				});
       }, 1000);
   </script>
 </script>
