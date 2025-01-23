@@ -55,6 +55,10 @@ void Api::init() {
     // WiFi.disconnect(true); 
     // WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
+    // delay(1000);
+    // WiFi.disconnect();
+    // delay(400);
+    // WiFi.begin(ssid, password);
     // Serial.print("Connecting to WiFi");
     // while (WiFi.status() != WL_CONNECTED) {
     //     Serial.print(".");
@@ -69,17 +73,21 @@ void Api::init() {
 
     Serial.println("Initializing server callbacks");
     this->server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+        Serial.println("Received GET request");
         request->send(200, "text/html", index_html);
+        Serial.println("Handled GET request");
     });
 
     this->server.on("/api", HTTP_POST, [](AsyncWebServerRequest * request){}, NULL,
       [this](AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
+        Serial.println("Received POST request");
         Context ctx = {
             .request = request,
             .api = this,
         };
 
         jsonrpc_process((char*)data, len, sender, NULL, (void*)&ctx);
+        Serial.println("Handled POST request");
     });
 
     // TODO: Handle GET requests

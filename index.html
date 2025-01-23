@@ -27,12 +27,11 @@
 			var i = 1;
 
       function json_rpc_call(method, params, callback) {
-				var xhr = new XMLHTTPRequest();
+				var xhr = new XMLHttpRequest();
 
-				xhr.setRequestHeader('Content-Type', 'application/json-rpc');
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status === 200) {
-						callback(JSON.parse(xhr.responseText);
+						callback(JSON.parse(xhr.responseText));
 					}
 				};
 
@@ -44,6 +43,7 @@
 				});
 
 				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-Type', 'application/json-rpc');
 				xhr.send(data);
       }
 
