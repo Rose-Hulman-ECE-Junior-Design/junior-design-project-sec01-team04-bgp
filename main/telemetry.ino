@@ -12,5 +12,6 @@ TelemetryData Telemetry::read() {
     TelemetryData result;
     result.current_ma = this->ina219.getCurrent_mA();
     result.battery_v = this->ina219.getBusVoltage_V();
+    result.power_mw = this->ina219.getPower_mW();
     return result;
 }

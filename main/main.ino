@@ -12,12 +12,11 @@ Servo motor_servo;
 Servo steering_servo;
 // PID objects. Variables are placeholders
 float Input_angle, Output_angle, Setpoint_angle = 0;
-float Kp_angle = 1.0, Ki_angle = 0.0, Kd_angle = 0;
+float Kp_angle = 1, Ki_angle = 0.1, Kd_angle = 0;
 QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
 
-
 Telemetry tl;
-VehicleState state = VehicleState::started;
+VehicleState state = VehicleState::stopped;
 Camera camera;
 Api api(&tl, &state);
 
@@ -29,6 +28,9 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
 
+    tl.init();
+    Serial.println("Initialized telemetry");
+    
     api.init();
     Serial.println("Initialized API");
 
@@ -54,10 +56,10 @@ void setup() {
 }
 
 
-float mapfloat(float value, float fromlow, float fromhigh, float tolow, float tohigh) {
-  value -= fromlow;
-  value *= (tohigh - tolow) / (fromhigh-fromlow);
-  value += tolow;
+float mapFloat(float value, float fromLow, float fromHigh, float toLow, float toHigh) {
+  value -= fromLow;
+  value *= (toHigh - toLow) / (fromHigh - fromLow);
+  value += toLow;
 
   return value;
 }
@@ -66,8 +68,9 @@ float mapfloat(float value, float fromlow, float fromhigh, float tolow, float to
 void update() {
     // Update PID loop based on camera values
     camera.read();
-    // Input_angle = mapfloat(0.4 * camera.offset + 1.6 * mapfloat(camera.angle, 0, 180, -160, 160), -320, 320, -70, 80);
-    Input_angle = mapfloat(camera.offset, -160, 160, -100, 100);
+    // Input_angle = mapFloat(0.4 * camera.offset + 1.6 * mapFloat(camera.angle, 0, 180, -160, 160), -320, 320, -70, 80);
+    Input_angle = mapFloat(camera.offset, -160, 160, -100, 100);
+    // Input_angle = mapFloat(camera.angle, 0, 180, -100, 100);
     AnglePID.Compute();
     Serial.print("output angle: ");
     Serial.print(Output_angle);
@@ -80,14 +83,13 @@ void update() {
 
     // delay(1000);
 
-
-
-
     // uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
     // uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
-    steering_servo.write(mapfloat(Output_angle, -100, 100, 10, 170));
+    steering_servo.write(mapFloat(Output_angle, -100, 100, 10, 170));
 
     motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
+
+    delay(100);
 }
 
 void loop() {
@@ -96,6 +98,7 @@ void loop() {
         update();
         break;
     case VehicleState::stopped:
+        motor_servo.write(0);
         break;
     }
 }

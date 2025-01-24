@@ -11,19 +11,25 @@
   <body>
     <button id="start">Start</button>
     <button id="stop">Stop</button>
-    <table>
-      <tr>
-        <th>Current (mA)</th>
-        <th>Battery Voltage (V)</th>
-      </tr>
-      <tr>
-        <td id="current"></td>
-        <td id="voltage"></td>
-      </tr>
+    <table id="table">
+			<thead>
+				<tr>
+					<th>Current (mA)</th>
+					<th>Battery Voltage (V)</th>
+					<th>Power (mW)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- <tr>
+					<td id="current"></td>
+					<td id="voltage"></td>
+					<td id="power"></td>
+				</tr> -->
+			</tbody>
     <table>
   </body>
   <script>
-      var url = 'https://192.168.4.1/api';
+      var url = 'http://192.168.4.1/api';
 			var i = 1;
 
       function json_rpc_call(method, params, callback) {
@@ -31,7 +37,7 @@
 
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status === 200) {
-						callback(JSON.parse(xhr.responseText));
+						callback(JSON.parse(xhr.responseText).result);
 					}
 				};
 
@@ -48,9 +54,11 @@
       }
 
       var start = document.getElementById('start');
-      var stop = document.getElementById('stop')
-      var current = document.getElementById('current')
-      var voltage = document.getElementById('voltage')
+      var stop = document.getElementById('stop');
+			var table = document.getElementById('table').getElementsByTagName('tbody')[0];
+      // var current = document.getElementById('current')
+      // var voltage = document.getElementById('voltage')
+      // var power = document.getElementById('power')
 
       start.onclick = function() {
 				json_rpc_call('start', [], () => {
@@ -66,8 +74,21 @@
 
       setInterval(function() {
 				json_rpc_call('telemetry', [], (res) => {
-					current.innerHTML = res.current_ma;
-					voltage.innerHTML = res.battery_v;
+					var new_row = table.insertRow();
+
+					console.log(res);
+
+					var current = new_row.insertCell();
+					var current_text = document.createTextNode(res.current_ma);
+					current.appendChild(current_text);
+
+					var voltage = new_row.insertCell();
+					var voltage_text = document.createTextNode(res.battery_v);
+					voltage.appendChild(voltage_text);
+
+					var power = new_row.insertCell();
+					var power_text = document.createTextNode(res.power_mw);
+					power.appendChild(power_text);
 				});
       }, 1000);
   </script>

@@ -5,6 +5,7 @@
 typedef struct {
     float current_ma;
     float battery_v;
+    float power_mw;
 } TelemetryData;
 
 // Class to handle reading telemetry data from vehicle

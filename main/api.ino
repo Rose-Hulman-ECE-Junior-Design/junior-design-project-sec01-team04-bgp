@@ -38,38 +38,19 @@ TelemetryData Api::telemetry() {
 static void handle_telemetry(struct jsonrpc_request* r) {
     Context* ctx = (Context*)r->userdata;
     TelemetryData data = ctx->api->telemetry();
-    jsonrpc_return_success(r, "{%Q:%g,%Q:%g}", "current_ma", data.current_ma, "battery_v", data.battery_v);
-}
-
-static int sender(const char* frame, int frame_len, void* ctx) {
-    AsyncWebServerRequest* request = ((Context*)ctx)->request;
-    AsyncWebServerResponse* response = request->beginResponse_P(200, "application/json-rpc", (uint8_t*)frame, frame_len);
-    request->send(response);
-    return frame_len;
+    jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "current_ma", data.current_ma, "battery_v", data.battery_v, "power_mw", data.power_mw);
 }
 
 void Api::init() {
     WiFi.mode(WIFI_AP);
-    WiFi.softAP(ssid, password);
-    // WiFi.setTxPower(WIFI_POWER_5dBm);
-    // WiFi.disconnect(true); 
-    // WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-    // delay(1000);
-    // WiFi.disconnect();
-    // delay(400);
-    // WiFi.begin(ssid, password);
-    // Serial.print("Connecting to WiFi");
-    // while (WiFi.status() != WL_CONNECTED) {
-    //     Serial.print(".");
-    //     delay(1000);
-    // }
-    // Serial.println("\nConnected");
+    if (!WiFi.softAP(ssid, password)) {
+      Serial.println("WiFi AP failed");
+      while (true);
+    }
     delay(1000);
 
     Serial.print("Starting server on ");
     Serial.println(WiFi.softAPIP());
-    // Serial.println(WiFi.localIP());
 
     Serial.println("Initializing server callbacks");
     this->server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
@@ -78,7 +59,7 @@ void Api::init() {
         Serial.println("Handled GET request");
     });
 
-    this->server.on("/api", HTTP_POST, [](AsyncWebServerRequest * request){}, NULL,
+    this->server.on("/api", HTTP_POST, [](AsyncWebServerRequest* request){}, NULL,
       [this](AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
         Serial.println("Received POST request");
         Context ctx = {
@@ -86,7 +67,13 @@ void Api::init() {
             .api = this,
         };
 
-        jsonrpc_process((char*)data, len, sender, NULL, (void*)&ctx);
+        // jsonrpc_process((const char*)data, len, sender, NULL, (void*)ctx);
+        char* response = nullptr;
+        jsonrpc_process((const char*)data, len, mjson_print_dynamic_buf, &response, (void*)&ctx);
+        request->send(200, "application/json-rpc", response);
+        // AsyncWebServerResponse* response = request->beginResponse_P(200, "application/json-rpc", (const uint8_t*)frame, strlen(frame));
+        // request->send(response);
+        free(response);
         Serial.println("Handled POST request");
     });
 
