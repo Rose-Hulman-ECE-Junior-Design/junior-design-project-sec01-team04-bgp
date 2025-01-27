@@ -69,27 +69,29 @@ void update() {
     // Update PID loop based on camera values
     camera.read();
     // Input_angle = mapFloat(0.4 * camera.offset + 1.6 * mapFloat(camera.angle, 0, 180, -160, 160), -320, 320, -70, 80);
-    Input_angle = mapFloat(camera.offset, -160, 160, -100, 100);
+    // Input_angle = mapFloat(camera.offset, -160, 160, -100, 100);
     // Input_angle = mapFloat(camera.angle, 0, 180, -100, 100);
-    AnglePID.Compute();
-    Serial.print("output angle: ");
-    Serial.print(Output_angle);
-    Serial.print(", input angle: ");
-    Serial.print(Input_angle);
-    Serial.print(", camera angle: ");
+    // AnglePID.Compute();
+    // Serial.print("output angle: ");
+    // Serial.print(Output_angle);
+    // Serial.print(", input angle: ");
+    // Serial.print(Input_angle);
+    Serial.print("camera angle: ");
     Serial.print(camera.angle);
-    Serial.print(", camera offset: ");
-    Serial.println(camera.offset);
+    Serial.print(", steering angle: ");
+    Serial.println(camera.steering_angle);
+    // Serial.print(", camera offset: ");
+    // Serial.println(camera.offset);
 
-    // delay(1000);
+    delay(1000);
 
     // uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
     // uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
-    steering_servo.write(mapFloat(Output_angle, -100, 100, 10, 170));
+    // steering_servo.write(mapFloat(Output_angle, -100, 100, 10, 170));
 
-    motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
+    // motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
 
-    delay(100);
+    // delay(100);
 }
 
 void loop() {
