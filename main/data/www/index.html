@@ -76,13 +76,21 @@
 			hr {
 				width: 100%;
 				border-top: var(--line-width) solid var(--line-color);
-				margin: 2em;
+				margin: 2em 0;
+			}
+
+			.controls {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-evenly;
 			}
 
 			section {
 				display: flex;
 				flex-direction: column;
-				align-items: center;
+				align-items: stretch;
+				text-align: center;
+				justify-content: center;
 
 				width: 75%;
 				margin: 2em auto;
@@ -117,7 +125,7 @@
 
 			<hr>
 
-			<div id="controls">
+			<div class="controls">
 				<button id="start">Start</button>
 				<button id="stop" disabled>Stop</button>
 			</div>
@@ -130,7 +138,7 @@
 
 			<canvas id="chart"></canvas>
 
-			<div>
+			<div class="controls">
 				<button id="enable" disabled>Enable Telemetry</button>
 				<button id="disable">Disable Telemetry</button>
 				<p>Telemetry Refresh (ms)</p>
@@ -188,12 +196,19 @@
 		}
 
 		const labels = ['Voltage (V)', 'Current (mA)', 'Power (mW)'];
-		const colors = ['blue', 'yellow', 'green'];
+		const backgroundColors = ['#36a2eb80', '#ffcd5680', '#4bc0c080'];
+		const borderColors = ['#36a2eb', '#ffcd56', '#4bc0c0'];
+
 		var chart = new Chart(document.getElementById('chart'), {
 			type: 'line',
 			data: {
 				labels: [],
-				datasets: labels.map((label, i) => ({ label: label, backgroundColor: colors[i], data: [] })),
+				datasets: labels.map((label, i) => ({
+					label: label,
+					data: [],
+					backgroundColor: backgroundColors[i],
+					borderColor: borderColors[i],
+				})),
 			},
 			options: {
 				responsive: true,
