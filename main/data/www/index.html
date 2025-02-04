@@ -141,8 +141,10 @@
 			<div class="controls">
 				<button id="enable" disabled>Enable Telemetry</button>
 				<button id="disable">Disable Telemetry</button>
-				<p>Telemetry Refresh (ms)</p>
-				<input type="text"></input>
+				<label>
+					Refresh Rate (ms)
+					<input id="refresh_rate" type="number" min="0" placeholder="1000" />
+				</label>
 				<button id="download">
 					Download csv
 					<a id="download_link" download="telemetry.csv" hidden></a>
@@ -152,7 +154,7 @@
 	</body>
 	<script src="chart.js"></script>
 	<script>
-		const api_url = 'http://192.168.4.1/api'; // TODO: Can you just write '/api'?
+		const api_url = '/api';
 		var i = 1;
 
 		var timeout = 1000; 
@@ -229,6 +231,7 @@
 
 		var enable = document.getElementById('enable');
 		var disable = document.getElementById('disable');
+		var refresh_rate = document.getElementById('refresh_rate');
 
 		var download = document.getElementById('download');
 
@@ -261,6 +264,10 @@
 			enable.disabled = false;
 			disable.disabled = true;
 		}
+
+		refresh_rate.addEventListener('change', function() {
+			timeout = parseInt(this.value, 10);
+		});
 
 		function get_telemetry() {
 			if (telemetry_enabled) {
