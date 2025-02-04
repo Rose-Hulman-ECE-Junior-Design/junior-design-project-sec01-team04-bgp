@@ -10,8 +10,9 @@ calculating the angle/offset of the vehicle relative to the line.  The
 [`api`](main/api.h) files are for setting up the webserver that both allows
 devices to access the dashboard webpage and provides an API for clients to
 control the vehicle. The webpage accesses this API and presents the data on a
-user-friendly GUI.  The [`main`](main/main.ino) files hold the setup and loop
-functions.
+user-friendly GUI. The webpage and other web files are stored in the
+[`www`](main/data/www) directory. The [`main`](main/main.ino) file holds the
+setup and loop functions.
 
 
 ## State Diagram
@@ -39,12 +40,16 @@ develop an intuition for these concepts. This also ties into the requirement
 that user will be able to see the instantaneous power draw over time during the
 competition.
 
+
 ## Using the Dashboard
 
 To access the vehicle dashboard, first turn on the vehicle and connect to its
 WiFi network (The SSID is "ECE362TeamBGP"). Next, open a web browser and
 navigate to the IP of the vehicle. This can be found by checking the serial
-output as the vehicle starts up (It defaults to 192.168.4.1).
+output as the vehicle starts up (It defaults to 192.168.4.1). For connecting to
+serial, attach a USB cable from your device to the vehicle and use an
+application like screen or the Arduino IDE to view the output. Set the baud
+rate to 115,200.
 
 You should be presented with the following screen:
 ![dashboard controls](docs/dashboard_controls.png)
@@ -64,15 +69,15 @@ the "Download csv" button.
 ## API Usage
 
 The vehicle hosts a webserver on port 80 that both serves the webpage and
-provides an API for programmatic usage. The API uses the JSON-RPC protocol over
-HTTP and can be accessed on the "/api" route.
+provides an API for programmatic usage. The API uses the [JSON-RPC](https://www.jsonrpc.org/)
+protocol [over HTTP](https://www.simple-is-better.org/json-rpc/transport_http.html)
+and can be accessed on the `/api` route.
 
 
 ### API Functions
 
-| Method Name | Parameters | Return                                                            | Description                                       |
-|-------------|------------|-------------------------------------------------------------------|---------------------------------------------------|
-| start       | none       | none                                                              | Starts the vehicle                                |
-| stop        | none       | none                                                              | Stops the vehicle                                 |
-| telemetry   | none       | { "battery_v": number, "current_ma": number, "power_mw": number } | Requests telemetry data from the vehicle.         |
-|             |            |                                                                   | This includes battery voltage, current, and power |
+| Method Name | Parameters | Return                                                              | Description                                                                                 |
+|-------------|------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| start       | none       | none                                                                | Starts the vehicle                                                                          |
+| stop        | none       | none                                                                | Stops the vehicle                                                                           |
+| telemetry   | none       | `{ "battery_v": number, "current_ma": number, "power_mw": number }` | Requests telemetry data from the vehicle. This includes battery voltage, current, and power |
