@@ -1,0 +1,39 @@
+@startuml
+class Api {
+    -server: AsyncWebServer
+
+    +init()
+    +start()
+    +stop()
+    +telemetry(): TelemetryData
+}
+
+enum VehicleState {
+    stopped,
+    started,
+}
+
+class TelemetryData {
+    +current_ma: float
+    +battery_v: float
+    +power_mw: float
+}
+
+class Telemetry {
+    -ina219: Adafruit_INA219
+
+    +init()
+    +read(): TelemetryData
+}
+
+Api -> VehicleState
+Api -> Telemetry
+
+class Camera {
+    -camera: HUSKYLENS
+
+    +init()
+    +read(): bool
+    +get_servo_angle(): double
+}
+@enduml
