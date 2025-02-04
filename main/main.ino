@@ -14,7 +14,6 @@ Servo steering_servo;
 float Input_angle, Output_angle, Setpoint_angle = 0;
 float Kp_angle = 1, Ki_angle = 0.1, Kd_angle = 0;
 QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
-
 Telemetry tl;
 VehicleState state = VehicleState::stopped;
 Camera camera;
@@ -55,19 +54,10 @@ void setup() {
     Serial.println("Initialized camera");
 }
 
-
-float mapFloat(float value, float fromLow, float fromHigh, float toLow, float toHigh) {
-  value -= fromLow;
-  value *= (toHigh - toLow) / (fromHigh - fromLow);
-  value += toLow;
-
-  return value;
-}
-
 // Update motor speed and steering angle
 void update() {
     // Update PID loop based on camera values
-    camera.read();
+    if (!camera.read()) return;
     // Input_angle = mapFloat(0.4 * camera.offset + 1.6 * mapFloat(camera.angle, 0, 180, -160, 160), -320, 320, -70, 80);
     // Input_angle = mapFloat(camera.offset, -160, 160, -100, 100);
     // Input_angle = mapFloat(camera.angle, 0, 180, -100, 100);
@@ -83,11 +73,11 @@ void update() {
     // Serial.print(", camera offset: ");
     // Serial.println(camera.offset);
 
-    delay(1000);
+    delay(5000);
 
     // uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
     // uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
-    // steering_servo.write(mapFloat(Output_angle, -100, 100, 10, 170));
+    steering_servo.write(camera.get_servo_angle());
 
     // motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
 

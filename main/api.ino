@@ -1,12 +1,7 @@
 #include <WiFi.h>
 #include <mjson.h>
+#include <LittleFS.h>
 #include "api.h"
-#include "index_html.h"
-
-typedef struct {
-    AsyncWebServerRequest* request;
-    Api* api;
-} Context;
 
 void Api::start() {
     *this->st = VehicleState::started;
@@ -14,8 +9,8 @@ void Api::start() {
 }
 
 static void handle_start(struct jsonrpc_request* r) {
-    Context* ctx = (Context*)r->userdata;
-    ctx->api->start();
+    auto api = (Api*)r->userdata;
+    api->start();
     jsonrpc_return_success(r, "{}");
 }
 
@@ -25,8 +20,8 @@ void Api::stop() {
 }
 
 static void handle_stop(struct jsonrpc_request* r) {
-    Context* ctx = (Context*)r->userdata;
-    ctx->api->stop();
+    auto api = (Api*)r->userdata;
+    api->stop();
     jsonrpc_return_success(r, "{}");
 }
 
@@ -36,8 +31,8 @@ TelemetryData Api::telemetry() {
 }
 
 static void handle_telemetry(struct jsonrpc_request* r) {
-    Context* ctx = (Context*)r->userdata;
-    TelemetryData data = ctx->api->telemetry();
+    auto api = (Api*)r->userdata;
+    TelemetryData data = api->telemetry();
     jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "current_ma", data.current_ma, "battery_v", data.battery_v, "power_mw", data.power_mw);
 }
 
@@ -52,28 +47,25 @@ void Api::init() {
     Serial.print("Starting server on ");
     Serial.println(WiFi.softAPIP());
 
+    if (!LittleFS.begin(true)) {
+        Serial.println("LittleFS Mount Failed");
+        return;
+    }
+    Serial.println("Initialized filesystem");
+
     Serial.println("Initializing server callbacks");
-    this->server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-        Serial.println("Received GET request");
-        request->send(200, "text/html", index_html);
-        Serial.println("Handled GET request");
-    });
+
+    this->server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");
 
     this->server.on("/api", HTTP_POST, [](AsyncWebServerRequest* request){}, NULL,
       [this](AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total) {
         Serial.println("Received POST request");
-        Context ctx = {
-            .request = request,
-            .api = this,
-        };
 
-        // jsonrpc_process((const char*)data, len, sender, NULL, (void*)ctx);
         char* response = nullptr;
-        jsonrpc_process((const char*)data, len, mjson_print_dynamic_buf, &response, (void*)&ctx);
+        jsonrpc_process((const char*)data, len, mjson_print_dynamic_buf, &response, (void*)this);
         request->send(200, "application/json-rpc", response);
-        // AsyncWebServerResponse* response = request->beginResponse_P(200, "application/json-rpc", (const uint8_t*)frame, strlen(frame));
-        // request->send(response);
         free(response);
+
         Serial.println("Handled POST request");
     });
 

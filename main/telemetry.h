@@ -12,8 +12,8 @@ typedef struct {
 class Telemetry {
 public:
     void init();
+    
     TelemetryData read();
-
 private:
     Adafruit_INA219 ina219;
 };
