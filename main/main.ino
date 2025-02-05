@@ -54,6 +54,33 @@ void setup() {
     Serial.println("Initialized camera");
 }
 
+// double map_double(double value, double from_low, double from_high, double to_low, double to_high) {
+//   value -= from_low;
+//   value *= (to_high - to_low) / (from_high - from_low);
+//   value += to_low;
+
+//   if (value > to_high) {
+//     return to_high;
+//   } else if (value < to_low) {
+//     return to_low;
+//   } else {
+//     return value;
+//   }
+// }
+
+void old_update() {
+  if (!camera.old_read()) return;
+
+  Serial.println("Updated");
+  Input_angle = map_double(camera.offset, -160, 160, -100, 100);
+  AnglePID.Compute();
+
+  steering_servo.write(map_double(Output_angle, -100, 100, 10, 170));
+  motor_servo.write(30);
+
+  delay(100);
+}
+
 // Update motor speed and steering angle
 void update() {
     // Update PID loop based on camera values
@@ -77,17 +104,19 @@ void update() {
 
     // uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
     // uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
-    steering_servo.write(camera.get_servo_angle());
+    // steering_servo.write(camera.get_servo_angle());
 
-    // motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
+    motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
 
-    // delay(100);
+    delay(100);
 }
 
 void loop() {
     switch (state) {
     case VehicleState::started:
-        update();
+        // update();
+        Serial.println("About to update");
+        old_update();
         break;
     case VehicleState::stopped:
         motor_servo.write(0);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "HUSKYLENS.h"
 
 typedef struct {
@@ -13,6 +14,8 @@ typedef struct {
   double z;
 } Point3;
 
+double map_double(double, double, double, double, double);
+
 // Class to read and interpret data from the HuskyLens camera
 class Camera {
 public:
@@ -22,8 +25,10 @@ public:
 
     void init();
 
-    void read();
+    bool old_read();
+    bool read();
 
+    double get_servo_angle();
 private:
     HUSKYLENS camera;
 };
