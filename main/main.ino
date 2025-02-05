@@ -100,13 +100,14 @@ void update() {
     // Serial.print(", camera offset: ");
     // Serial.println(camera.offset);
 
+    steering_servo.write(map_double(camera.steering_angle, -90, 90, 10, 170));
     delay(5000);
 
     // uint8_t speed_setpoint = speed_pid.step(0, camera.angle);
     // uint8_t new_angle = angle_pid.step(0, camera.angle + camera.offset);
     // steering_servo.write(camera.get_servo_angle());
 
-    motor_servo.write(30); // TODO: Setup PID loop. For now, just using min speed
+    motor_servo.write(0); // TODO: Setup PID loop. For now, just using min speed
 
     delay(100);
 }
@@ -114,9 +115,9 @@ void update() {
 void loop() {
     switch (state) {
     case VehicleState::started:
-        // update();
+        update();
         Serial.println("About to update");
-        old_update();
+        // old_update();
         break;
     case VehicleState::stopped:
         motor_servo.write(0);

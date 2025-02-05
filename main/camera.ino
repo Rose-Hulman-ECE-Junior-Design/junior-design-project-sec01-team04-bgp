@@ -20,12 +20,28 @@ const double camera_angle = 13 * M_PI / 60; // 39deg
 
 const double back_focal_length = 1.3;// BFL = 1.3mm, EFL = 4.6mm
 
-const float cam_z_min = 3.5; // all in inches
-const float cam_z_max = 16;
-const float cam_x_max = 6.1875;
-const float cam_x_min = 3.3125;
+const double cam_z_min = 3.5; // all in inches
+const double cam_z_max = 16;
+const double cam_x_max = 6.1875;
+const double cam_x_min = 3.3125;
+
+const double inch_to_mm = 25.4;
 
 // const double lookahead_distance = 500; // TODO: Set dynamically?
+
+double map_double(double value, double from_low, double from_high, double to_low, double to_high) {
+  value -= from_low;
+  value *= (to_high - to_low) / (from_high - from_low);
+  value += to_low;
+
+  if (value > to_high) {
+    return to_high;
+  } else if (value < to_low) {
+    return to_low;
+  } else {
+    return value;
+  }
+}
 
 float mapfloat(float value, float fromlow, float fromhigh, float tolow, float tohigh) {
   value -= fromlow;
@@ -64,11 +80,11 @@ Point3 project_ground(Point2 screen) {
   // ground.z = screen.z + scale * (screen.z - rear_focal.z);
 
 
-  ground.z = mapfloat(screen.z, 0, PY, cam_z_min, cam_z_max);
+  ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
 
-  float x_offset = cam_x_min + ((cam_z_max - cam_z_min)/(cam_x_max - cam_x_min)) (ground.z - cam_z_min);
+  double x_offset = cam_x_min + ((cam_z_max - cam_z_min)/(cam_x_max - cam_x_min))*(ground.z - cam_z_min);
 
-  ground.x = (screen.x, 0, 240, -x_offset, x_offset)
+  ground.x = (screen.x, 0, 240, -x_offset, x_offset);
 
   return ground;
 }
@@ -78,7 +94,7 @@ double compute_angle(Point3 target, Point3 origin) {
 }
 
 double distance_2d(Point3 from, Point3 to) {
-  return sqrt((to.x - from.x) * (to.x - from.x) + (to.z - from.z) * (to.z - from.z));
+  return inch_to_mm*(sqrt((to.x - from.x) * (to.x - from.x) + (to.z - from.z) * (to.z - from.z)));
 }
 
 double compute_steering_angle(Point3 target, Point3 vehicle) {
@@ -86,19 +102,6 @@ double compute_steering_angle(Point3 target, Point3 vehicle) {
   return atan2(2 * wheelbase * sin(compute_angle(target, vehicle)), lookahead_distance);
 }
 
-double map_double(double value, double from_low, double from_high, double to_low, double to_high) {
-  value -= from_low;
-  value *= (to_high - to_low) / (from_high - from_low);
-  value += to_low;
-
-  if (value > to_high) {
-    return to_high;
-  } else if (value < to_low) {
-    return to_low;
-  } else {
-    return value;
-  }
-}
 
 double Camera::get_servo_angle() {
   return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
