@@ -8,8 +8,8 @@
 const char* ssid = "ECE362TeamBGP";
 const char* password = nullptr;
 
-// This class is responsible for providing the webserver and JSON-RPC based API
-// It also starts the WiFi network based on the ssid and password defined above
+// This class is responsible for providing the webserver and JSON-RPC based API.
+// It also starts the WiFi network based on the ssid and password defined above.
 class Api {
 public:
     Api(Telemetry* tl, VehicleState* st, int* speed) : tl(tl), st(st), speed(speed), server(80) {};

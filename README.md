@@ -12,7 +12,8 @@ devices to access the dashboard webpage and provides an API for clients to
 control the vehicle. The webpage accesses this API and presents the data on a
 user-friendly GUI. The webpage and other web files are stored in the
 [`www`](main/data/www) directory. The [`main`](main/main.ino) file holds the
-setup and loop functions.
+setup and loop functions. Finally, the [`state`](main/state.h) file has an enum
+which represents the possible vehicle states.
 
 
 ## State Diagram

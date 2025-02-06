@@ -8,8 +8,8 @@ typedef struct {
     double power_w;
 } TelemetryData;
 
-// Class to handle reading telemetry data from vehicle
-// This includes the current, voltage, and power
+// Class to handle reading telemetry data from vehicle.
+// This includes the current, voltage, and power.
 class Telemetry {
 public:
     void init();

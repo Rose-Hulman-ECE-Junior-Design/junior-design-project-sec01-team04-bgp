@@ -16,7 +16,7 @@ typedef struct {
 
 double map_double(double, double, double, double, double);
 
-// Class to read and interpret line data from the HuskyLens camera
+// Class to read and interpret line data from the HuskyLens camera.
 class Camera {
 public:
     double angle; // Angle of line in degrees [-90, 90]
