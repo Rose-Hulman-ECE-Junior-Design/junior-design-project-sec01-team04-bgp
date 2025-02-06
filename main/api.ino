@@ -50,6 +50,16 @@ static void handle_telemetry(struct jsonrpc_request* r) {
   jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "current_a", data.current_a, "battery_v", data.battery_v, "power_w", data.power_w);
 }
 
+CameraView Api::camera_view() {
+  return this->camera->get_camera_view();
+}
+
+static void handle_camera_view(struct jsonrpc_request* r) {
+  auto api = (Api*)r->userdata;
+  CameraView view = api->camera_view();
+  jsonrpc_return_success(r, "{%Q:{%Q:%g,%Q:%g},%Q:{%Q:%g,%Q:%g}}", "target", "x", view.target.x, "y", view.target.y, "origin", "x", view.origin.x, "y", view.origin.y);
+}
+
 void Api::init() {
   WiFi.mode(WIFI_AP);
   if (!WiFi.softAP(ssid, password)) {
@@ -88,6 +98,7 @@ void Api::init() {
   jsonrpc_export("stop", handle_stop);
   jsonrpc_export("set_speed", handle_set_speed);
   jsonrpc_export("telemetry", handle_telemetry);
+  jsonrpc_export("camera_view", handle_camera_view);
   
   Serial.println("Setup server callbacks");
   this->server.begin();

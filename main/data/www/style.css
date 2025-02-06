@@ -1,0 +1,99 @@
+@font-face {
+  font-family: 'Monorama';
+  src: local('Monorama Bold'), local('Monorama-Bold'),
+      url('Monorama-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Monorama';
+  src: local('Monorama Regular'), local('Monorama-Regular'),
+      url('Monorama-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --text: #000000;
+  --fg: #ececec;
+  --bg: #ffffff;
+  --line-color: #000000;
+  --line-width: 2px;
+  --accent: #a6a6a6;
+  --font: "Monorama";
+}
+
+* {
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: normal;
+  text-decoration: none;
+  background-color: var(--fg);
+  margin: 0;
+}
+
+nav {
+  display: flex;
+  position: sticky;
+  top: 0;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1em;
+
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+#nav-right {
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+h1 {
+  font-family: var(--font);
+  font-weight: bold;
+  font-size: xx-large;
+}
+
+hr {
+  width: 100%;
+  border-top: var(--line-width) solid var(--line-color);
+  margin: 2em 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+#camera_view {
+  border: var(--line-width) solid var(--line-color);
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+  justify-content: center;
+
+  width: 75%;
+  margin: 2em auto;
+  padding: 2em;
+
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+body {
+  background: var(--bg);
+  background-image: radial-gradient(var(--accent) 1px, transparent 0);
+  background-size: 40px 40px;
+  background-position: -19px -19px;
+  margin: 0;
+  padding: 0 0 5em 0;
+}

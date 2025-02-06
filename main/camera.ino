@@ -74,18 +74,10 @@ Point3 from_pixel_coords(Point2 px) {
 Point3 project_ground(Point2 screen) {
   Point3 ground;
 
-
-  // double scale = -screen.y / (screen.y - rear_focal.y);
-  // ground.x = screen.x + scale * (screen.x - rear_focal.x);
-  ground.y = 0;
-  // ground.z = screen.z + scale * (screen.z - rear_focal.z);
-
-
-  ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
-
-  double x_offset = cam_x_min + ((cam_x_max - cam_x_min) / (cam_z_max - cam_z_min)) * (ground.z - cam_z_min);
-
+  double x_offset = cam_x_min + (cam_x_max - cam_x_min) / (cam_z_max - cam_z_min) * (ground.z - cam_z_min);
   ground.x = map_double(screen.x, 0, PX, -x_offset, x_offset);
+  ground.y = 0;
+  ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
 
   return ground;
 }
@@ -135,18 +127,18 @@ bool Camera::read() {
   if (!this->camera.request() || ! this->camera.available()) return false;
 
   HUSKYLENSResult result = this->camera.read();
-  Point2 target = { result.xTarget, PY - result.yTarget };
-  Point2 origin = { result.xOrigin, PY - result.yOrigin };
+  this->target = (Point2) { result.xTarget, PY - result.yTarget };
+  this->origin = (Point2) { result.xOrigin, PY - result.yOrigin };
 
   if (origin.y > target.y) {
     Serial.println("Swapping target and origin");
-    std::swap(target, origin);
+    std::swap(this->target, this->origin);
   }
 
   Serial.printf("Pixels: (%f, %f) to (%f, %f)\n", origin.x, origin.y, target.x, target.y);
 
-  Point3 ground_target = project_ground(target);
-  Point3 ground_origin = project_ground(origin);
+  Point3 ground_target = project_ground(this->target);
+  Point3 ground_origin = project_ground(this->origin);
   Serial.printf("Ground: from (%f, %f, %f) to (%f, %f, %f)\n", ground_origin.x, ground_origin.y, ground_origin.z, ground_target.x, ground_target.y, ground_target.z);
 
   this->angle = compute_angle(ground_target, ground_origin) * 180.0 / M_PI;
@@ -158,4 +150,7 @@ bool Camera::read() {
   return true;
 }
 
-
+CameraView Camera::get_camera_view() {
+  // printf("Camera view: target = (%f, %f), origin = (%f, %f)\n", this->target.x, this->target.y, this->origin.x, this->origin.y);
+  return (CameraView) { .target = this->target, .origin = this->origin };
+}
