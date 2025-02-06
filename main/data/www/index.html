@@ -201,7 +201,7 @@
       link.click();
     }
 
-    const labels = ['Voltage (V)', 'Current (mA)', 'Power (mW)'];
+    const labels = ['Voltage (V)', 'Current (A)', 'Power (W)'];
     const backgroundColors = ['#36a2eb80', '#ffcd5680', '#4bc0c080'];
     const borderColors = ['#36a2eb', '#ffcd56', '#4bc0c0'];
 
@@ -260,7 +260,7 @@
 
     motor_speed.addEventListener('change', function() {
       const speed = parseInt(this.value, 10);
-      jsonrpc_call('set_speed', [speed], () => {
+      json_rpc_call('set_speed', [speed], () => {
         console.log("Set speed to " + speed);
       });
     });
@@ -285,7 +285,7 @@
       if (telemetry_enabled) {
         json_rpc_call('telemetry', [], (res) => {
           console.log(res);
-          add_data([res.battery_v, res.current_ma, res.power_mw]);
+          add_data([res.battery_v, res.current_a, res.power_w]);
         });
       }
 

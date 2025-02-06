@@ -6,8 +6,6 @@
 #include "api.h"
 #include "camera.h"
 
-#define PRINTLN(arg) Serial.println(arg)
-
 // Servos
 Servo motor_servo;
 Servo steering_servo;
@@ -22,8 +20,8 @@ QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
 
 // Telemetry, API, and camera objects
 Telemetry tl;
-VehicleState state = VehicleState::stopped;
-int speed = 0;
+VehicleState state = VehicleState::stopped; // Current state of the vehicle
+int speed = 30; // Default motor speed
 Api api(&tl, &state, &speed);
 Camera camera;
 
@@ -59,6 +57,7 @@ void setup() {
   Serial.println("Initialized camera");
 }
 
+// Update motor speed and steering angle based on naive PID loop algorithm
 void old_update() {
   if (!camera.old_read()) return;
 
@@ -72,7 +71,7 @@ void old_update() {
   delay(100);
 }
 
-// Update motor speed and steering angle
+// Update motor speed and steering angle based on pure pursuit algorithm
 void update() {
   if (!camera.read()) return;
 

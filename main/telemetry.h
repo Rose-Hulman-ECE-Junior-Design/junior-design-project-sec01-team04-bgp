@@ -3,12 +3,13 @@
 #include <Adafruit_INA219.h>
 
 typedef struct {
-    float current_ma;
-    float battery_v;
-    float power_mw;
+    double current_a;
+    double battery_v;
+    double power_w;
 } TelemetryData;
 
 // Class to handle reading telemetry data from vehicle
+// This includes the current, voltage, and power
 class Telemetry {
 public:
     void init();

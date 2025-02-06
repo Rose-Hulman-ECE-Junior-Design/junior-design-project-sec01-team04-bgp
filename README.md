@@ -76,8 +76,9 @@ and can be accessed on the `/api` route.
 
 ### API Functions
 
-| Method Name | Parameters | Return                                                              | Description                                                                                 |
-|-------------|------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| start       | none       | none                                                                | Starts the vehicle                                                                          |
-| stop        | none       | none                                                                | Stops the vehicle                                                                           |
-| telemetry   | none       | `{ "battery_v": number, "current_ma": number, "power_mw": number }` | Requests telemetry data from the vehicle. This includes battery voltage, current, and power |
+| Method Name | Parameters      | Return                                                              | Description                                                                                 |
+|-------------|-----------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| start       | none            | none                                                                | Starts the vehicle                                                                          |
+| stop        | none            | none                                                                | Stops the vehicle                                                                           |
+| set_speed   | [speed: number] | none                                                                | Sets the default motor speed of the vehicle                                                 |
+| telemetry   | none            | `{ "battery_v": number, "current_ma": number, "power_mw": number }` | Requests telemetry data from the vehicle. This includes battery voltage, current, and power |

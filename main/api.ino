@@ -34,11 +34,10 @@ void Api::set_speed(int speed) {
 static void handle_set_speed(struct jsonrpc_request* r) {
   auto api = (Api*)r->userdata;
   double speed;
-  mjson_get_number(r->params, r->params_len, "$[1]", &speed);
+  mjson_get_number(r->params, r->params_len, "$[0]", &speed);
   api->set_speed((int)speed);
   jsonrpc_return_success(r, "{}");
 }
-
 
 TelemetryData Api::telemetry() {
   // Serial.println("Sending telemetry");
@@ -48,7 +47,7 @@ TelemetryData Api::telemetry() {
 static void handle_telemetry(struct jsonrpc_request* r) {
   auto api = (Api*)r->userdata;
   TelemetryData data = api->telemetry();
-  jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "current_ma", data.current_ma, "battery_v", data.battery_v, "power_mw", data.power_mw);
+  jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "current_a", data.current_a, "battery_v", data.battery_v, "power_w", data.power_w);
 }
 
 void Api::init() {

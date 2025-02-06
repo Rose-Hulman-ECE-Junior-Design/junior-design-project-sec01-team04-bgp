@@ -100,14 +100,13 @@ double distance_2d(Point3 from, Point3 to) {
 
 double compute_steering_angle(Point3 target, Point3 vehicle) {
   double lookahead_distance = distance_2d(vehicle, target);
-  return atan2(2 * wheelbase * sin(compute_angle(target, vehicle)), lookahead_distance);
+  return atan2(2.0 * wheelbase * sin(compute_angle(target, vehicle)), lookahead_distance);
 }
-
 
 double Camera::get_servo_angle() {
   // TODO: Account for steering wheel angle range
   // return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
-  return map_double(camera.steering_angle * -4.0, -90, 90, 10, 170);
+  return map_double(this->steering_angle * -4.0, -90, 90, 10, 170);
 }
 
 bool Camera::old_read() {

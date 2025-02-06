@@ -4,14 +4,14 @@ void Telemetry::init() {
     // Init current sensor
     ina219.begin();
     if (!ina219.begin()) {
-        PRINTLN(F("Couldn't find INA219 device"));
+        Serial.println("Couldn't find INA219 device");
     }
 }
 
 TelemetryData Telemetry::read() {
     TelemetryData result;
-    result.current_ma = this->ina219.getCurrent_mA();
-    result.battery_v = this->ina219.getBusVoltage_V();
-    result.power_mw = this->ina219.getPower_mW();
+    result.current_a = (double)this->ina219.getCurrent_mA() / 1000;
+    result.battery_v = (double)this->ina219.getBusVoltage_V();
+    result.power_w = (double)this->ina219.getPower_mW() / 1000;
     return result;
 }
