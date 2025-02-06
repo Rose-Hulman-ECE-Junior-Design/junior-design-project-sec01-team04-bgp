@@ -1,300 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<base target="_blank" rel="noopener noreferrer" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base target="_blank" rel="noopener noreferrer" />
 
-		<title>BGP Vehicle Dashboard</title>
+    <title>BGP Vehicle Dashboard</title>
 
-		<!-- <link rel="preload" href="Monorama-Bold.tff" as="font" type="font/ttf">
-		<link rel="preload" href="Monorama-Regular.tff" as="font" type="font/ttf"> -->
+    <!-- <link rel="preload" href="Monorama-Bold.tff" as="font" type="font/ttf">
+    <link rel="preload" href="Monorama-Regular.tff" as="font" type="font/ttf"> -->
 
-		<style>
-			@font-face {
-					font-family: 'Monorama';
-					src: local('Monorama Bold'), local('Monorama-Bold'),
-							url('Monorama-Bold.ttf') format('truetype');
-					font-weight: bold;
-					font-style: normal;
-					font-display: swap;
-			}
+    <style>
+      @font-face {
+          font-family: 'Monorama';
+          src: local('Monorama Bold'), local('Monorama-Bold'),
+              url('Monorama-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: swap;
+      }
 
-			@font-face {
-					font-family: 'Monorama';
-					src: local('Monorama Regular'), local('Monorama-Regular'),
-							url('Monorama-Regular.ttf') format('truetype');
-					font-weight: normal;
-					font-style: normal;
-					font-display: swap;
-			}
+      @font-face {
+          font-family: 'Monorama';
+          src: local('Monorama Regular'), local('Monorama-Regular'),
+              url('Monorama-Regular.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+      }
 
-			:root {
-				--text: #000000;
-				--fg: #ececec;
-				--bg: #ffffff;
-				--line-color: #000000;
-				--line-width: 2px;
-				--accent: #a6a6a6;
-				--font: "Monorama";
-			}
+      :root {
+        --text: #000000;
+        --fg: #ececec;
+        --bg: #ffffff;
+        --line-color: #000000;
+        --line-width: 2px;
+        --accent: #a6a6a6;
+        --font: "Monorama";
+      }
 
-			* {
-				color: var(--text);
-				font-family: var(--font);
-				font-weight: normal;
-				text-decoration: none;
-				background-color: var(--fg);
-				margin: 0;
-			}
+      * {
+        color: var(--text);
+        font-family: var(--font);
+        font-weight: normal;
+        text-decoration: none;
+        background-color: var(--fg);
+        margin: 0;
+      }
 
-			nav {
-				display: flex;
-				position: sticky;
-				top: 0;
-				justify-content: space-between;
-				align-items: center;
+      nav {
+        display: flex;
+        position: sticky;
+        top: 0;
+        justify-content: space-between;
+        align-items: center;
 
-				padding: 1em;
+        padding: 1em;
 
-				box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-			}
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      }
 
-			#nav-right {
-				display: flex;
-				align-items: center;
-				gap: 3vw;
-			}
+      #nav-right {
+        display: flex;
+        align-items: center;
+        gap: 3vw;
+      }
 
-			h1 {
-				font-family: var(--font);
-				font-weight: bold;
-				font-size: xx-large;
-			}
+      h1 {
+        font-family: var(--font);
+        font-weight: bold;
+        font-size: xx-large;
+      }
 
-			hr {
-				width: 100%;
-				border-top: var(--line-width) solid var(--line-color);
-				margin: 2em 0;
-			}
+      hr {
+        width: 100%;
+        border-top: var(--line-width) solid var(--line-color);
+        margin: 2em 0;
+      }
 
-			.controls {
-				display: flex;
-				flex-wrap: wrap;
-				justify-content: space-evenly;
-			}
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+      }
 
-			section {
-				display: flex;
-				flex-direction: column;
-				align-items: stretch;
-				text-align: center;
-				justify-content: center;
+      section {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        justify-content: center;
 
-				width: 75%;
-				margin: 2em auto;
-				padding: 2em;
+        width: 75%;
+        margin: 2em auto;
+        padding: 2em;
 
-				box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-			}
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      }
 
-			body {
-				background: var(--bg);
-				background-image: radial-gradient(var(--accent) 1px, transparent 0);
-				background-size: 40px 40px;
-				background-position: -19px -19px;
-				margin: 0;
-				padding: 0 0 5em 0;
-			}
-		</style>
-	</head>
-	<body>
-		<nav>
-			<h1>Dashboard</h1>
+      body {
+        background: var(--bg);
+        background-image: radial-gradient(var(--accent) 1px, transparent 0);
+        background-size: 40px 40px;
+        background-position: -19px -19px;
+        margin: 0;
+        padding: 0 0 5em 0;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <h1>Dashboard</h1>
 
-			<div id="nav-right">
-				<a href="#" target="_self">Home</a>
-				<a href="#about" target="_self">About</a>
-				<a href="https://github.com/Rose-Hulman-ECE-Junior-Design/junior-design-project-sec01-team04-bgp">Source Code</a>
-			</div>
-		</nav>
+      <div id="nav-right">
+        <a href="#" target="_self">Home</a>
+        <a href="#about" target="_self">About</a>
+        <a href="https://github.com/Rose-Hulman-ECE-Junior-Design/junior-design-project-sec01-team04-bgp">Source Code</a>
+      </div>
+    </nav>
 
-		<section>
-			<h2>Controls</h2>
+    <section>
+      <h2>Controls</h2>
 
-			<hr>
+      <hr>
 
-			<div class="controls">
-				<button id="start">Start</button>
-				<button id="stop" disabled>Stop</button>
-			</div>
-		</section>
+      <div class="controls">
+        <button id="start">Start</button>
+        <button id="stop" disabled>Stop</button>
+        <label>
+          Motor Speed
+          <input id="motor_speed" type="number" min="0" max="150" placeholder="30" />
+        </label>
+      </div>
+    </section>
 
-		<section>
-			<h2>Telemetry Data</h2>
+    <section>
+      <h2>Telemetry Data</h2>
 
-			<hr>
+      <hr>
 
-			<canvas id="chart"></canvas>
+      <canvas id="chart"></canvas>
 
-			<div class="controls">
-				<button id="enable" disabled>Enable Telemetry</button>
-				<button id="disable">Disable Telemetry</button>
-				<label>
-					Refresh Rate (ms)
-					<input id="refresh_rate" type="number" min="0" placeholder="1000" />
-				</label>
-				<button id="download">
-					Download csv
-					<a id="download_link" download="telemetry.csv" hidden></a>
-				</button>
-			</div>
-		</section>
-	</body>
-	<script src="chart.js"></script>
-	<script>
-		const api_url = '/api';
-		var i = 1;
+      <div class="controls">
+        <button id="enable" disabled>Enable Telemetry</button>
+        <button id="disable">Disable Telemetry</button>
+        <label>
+          Refresh Rate (ms)
+          <input id="refresh_rate" type="number" min="0" placeholder="1000" />
+        </label>
+        <button id="download">
+          Download csv
+          <a id="download_link" download="telemetry.csv" hidden></a>
+        </button>
+      </div>
+    </section>
+  </body>
+  <script src="chart.js"></script>
+  <script>
+    const api_url = '/api';
+    var i = 1;
 
-		var timeout = 1000; 
-		var telemetry_enabled = true;
+    var timeout = 1000; 
+    var telemetry_enabled = true;
 
-		function json_rpc_call(method, params, callback) {
-			var xhr = new XMLHttpRequest();
+    function json_rpc_call(method, params, callback) {
+      var xhr = new XMLHttpRequest();
 
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState === 4 && xhr.status === 200) {
-					callback(JSON.parse(xhr.responseText).result);
-				}
-			};
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          callback(JSON.parse(xhr.responseText).result);
+        }
+      };
 
-			var data = JSON.stringify({
-				"jsonrpc": "2.0",
-				"method": method,
-				"params": params,
-				"id": i++,
-			});
+      var data = JSON.stringify({
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params,
+        "id": i++,
+      });
 
-			xhr.open('POST', api_url, true);
-			xhr.setRequestHeader('Content-Type', 'application/json-rpc');
-			xhr.send(data);
-		}
+      xhr.open('POST', api_url, true);
+      xhr.setRequestHeader('Content-Type', 'application/json-rpc');
+      xhr.send(data);
+    }
 
-		var CsvWriter = function() {
-			this.parts = [];
-		};
+    var CsvWriter = function() {
+      this.parts = [];
+    };
 
-		CsvWriter.prototype.append = function(row) {
-			this.parts.push(row.join(',') + '\n');
-		};
+    CsvWriter.prototype.append = function(row) {
+      this.parts.push(row.join(',') + '\n');
+    };
 
-		CsvWriter.prototype.download = function() {
-			const data = new Blob(this.parts, { type: 'text/plain' });
-			const data_url = window.URL.createObjectURL(data);
-			const link = document.getElementById('download_link');
-			link.href = data_url;
-			link.click();
-		}
+    CsvWriter.prototype.download = function() {
+      const data = new Blob(this.parts, { type: 'text/plain' });
+      const data_url = window.URL.createObjectURL(data);
+      const link = document.getElementById('download_link');
+      link.href = data_url;
+      link.click();
+    }
 
-		const labels = ['Voltage (V)', 'Current (mA)', 'Power (mW)'];
-		const backgroundColors = ['#36a2eb80', '#ffcd5680', '#4bc0c080'];
-		const borderColors = ['#36a2eb', '#ffcd56', '#4bc0c0'];
+    const labels = ['Voltage (V)', 'Current (mA)', 'Power (mW)'];
+    const backgroundColors = ['#36a2eb80', '#ffcd5680', '#4bc0c080'];
+    const borderColors = ['#36a2eb', '#ffcd56', '#4bc0c0'];
 
-		var chart = new Chart(document.getElementById('chart'), {
-			type: 'line',
-			data: {
-				labels: [],
-				datasets: labels.map((label, i) => ({
-					label: label,
-					data: [],
-					backgroundColor: backgroundColors[i],
-					borderColor: borderColors[i],
-				})),
-			},
-			options: {
-				responsive: true,
-			},
-		});
+    var chart = new Chart(document.getElementById('chart'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: labels.map((label, i) => ({
+          label: label,
+          data: [],
+          backgroundColor: backgroundColors[i],
+          borderColor: borderColors[i],
+        })),
+      },
+      options: {
+        responsive: true,
+      },
+    });
 
-		function add_data(values) {
-			values.forEach((value, i) => {
-				chart.data.datasets[i].data.push(value);
-			});
+    function add_data(values) {
+      values.forEach((value, i) => {
+        chart.data.datasets[i].data.push(value);
+      });
 
-			chart.data.labels.push(new Date().toLocaleTimeString());
-			chart.update();
-		}
+      chart.data.labels.push(new Date().toLocaleTimeString());
+      chart.update();
+    }
 
-		var start = document.getElementById('start');
-		var stop = document.getElementById('stop');
+    var start = document.getElementById('start');
+    var stop = document.getElementById('stop');
+    var refresh_rate = document.getElementById('motor_speed');
 
-		var enable = document.getElementById('enable');
-		var disable = document.getElementById('disable');
-		var refresh_rate = document.getElementById('refresh_rate');
+    var enable = document.getElementById('enable');
+    var disable = document.getElementById('disable');
+    var refresh_rate = document.getElementById('refresh_rate');
 
-		var download = document.getElementById('download');
+    var download = document.getElementById('download');
 
-		start.onclick = function() {
-			json_rpc_call('start', [], () => {
-				console.log("Started vehicle");
-			});
+    start.onclick = function() {
+      json_rpc_call('start', [], () => {
+        console.log("Started vehicle");
+      });
 
-			start.disabled = true;
-			stop.disabled = false;
-		};
+      start.disabled = true;
+      stop.disabled = false;
+    };
 
-		stop.onclick = function() {
-			json_rpc_call('stop', [], () => {
-				console.log("Stopped vehicle");
-			});
+    stop.onclick = function() {
+      json_rpc_call('stop', [], () => {
+        console.log("Stopped vehicle");
+      });
 
-			start.disabled = false;
-			stop.disabled = true;
-		};
+      start.disabled = false;
+      stop.disabled = true;
+    };
 
-		enable.onclick = function() {
-			telemetry_enabled = true;
-			enable.disabled = true;
-			disable.disabled = false;
-		}
+    motor_speed.addEventListener('change', function() {
+      const speed = parseInt(this.value, 10);
+      jsonrpc_call('set_speed', [speed], () => {
+        console.log("Set speed to " + speed);
+      });
+    });
 
-		disable.onclick = function() {
-			telemetry_enabled = false;
-			enable.disabled = false;
-			disable.disabled = true;
-		}
+    enable.onclick = function() {
+      telemetry_enabled = true;
+      enable.disabled = true;
+      disable.disabled = false;
+    }
 
-		refresh_rate.addEventListener('change', function() {
-			timeout = parseInt(this.value, 10);
-		});
+    disable.onclick = function() {
+      telemetry_enabled = false;
+      enable.disabled = false;
+      disable.disabled = true;
+    }
 
-		function get_telemetry() {
-			if (telemetry_enabled) {
-				json_rpc_call('telemetry', [], (res) => {
-					console.log(res);
-					add_data([res.battery_v, res.current_ma, res.power_mw]);
-				});
-			}
+    refresh_rate.addEventListener('change', function() {
+      timeout = parseInt(this.value, 10);
+    });
 
-			window.setTimeout(get_telemetry, timeout);
-		}
+    function get_telemetry() {
+      if (telemetry_enabled) {
+        json_rpc_call('telemetry', [], (res) => {
+          console.log(res);
+          add_data([res.battery_v, res.current_ma, res.power_mw]);
+        });
+      }
 
-		window.setTimeout(get_telemetry, timeout);
+      window.setTimeout(get_telemetry, timeout);
+    }
 
-		download.onclick = function() {
-			let rows = chart.data.datasets[0].data.map((_, colIndex) =>
-					chart.data.datasets.map(row => row.data[colIndex])
-			);
+    window.setTimeout(get_telemetry, timeout);
 
-			var writer = new CsvWriter();
-			writer.append(labels);
-			for (row of rows) {
-				writer.append(row);
-			}
+    download.onclick = function() {
+      let rows = chart.data.datasets[0].data.map((_, colIndex) =>
+          chart.data.datasets.map(row => row.data[colIndex])
+      );
 
-			writer.download();
-		};
-	</script>
-	</script>
+      var writer = new CsvWriter();
+      writer.append(labels);
+      for (row of rows) {
+        writer.append(row);
+      }
+
+      writer.download();
+    };
+  </script>
+  </script>
 </html>

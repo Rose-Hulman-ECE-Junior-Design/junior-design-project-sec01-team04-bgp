@@ -13,7 +13,7 @@ const int PY = 240;
 // const int sensor_width = 36;
 const int sensor_height = 2.7;
 const int sensor_width = 3.6;
-const int wheelbase = 190;
+
 const int camera_height = 165;
 const double camera_dist_to_sensor = 50;
 const double camera_angle = 13 * M_PI / 60; // 39deg
@@ -26,6 +26,7 @@ const double cam_x_max = 6.1875;
 const double cam_x_min = 3.3125;
 
 const double inch_to_mm = 25.4;
+const int wheelbase = 190/inch_to_mm;
 
 // const double lookahead_distance = 500; // TODO: Set dynamically?
 
@@ -76,15 +77,15 @@ Point3 project_ground(Point2 screen) {
 
   // double scale = -screen.y / (screen.y - rear_focal.y);
   // ground.x = screen.x + scale * (screen.x - rear_focal.x);
-  // ground.y = 0;
+  ground.y = 0;
   // ground.z = screen.z + scale * (screen.z - rear_focal.z);
 
 
   ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
 
-  double x_offset = cam_x_min + ((cam_z_max - cam_z_min)/(cam_x_max - cam_x_min))*(ground.z - cam_z_min);
+  double x_offset = cam_x_min + ((cam_x_max - cam_x_min) / (cam_z_max - cam_z_min)) * (ground.z - cam_z_min);
 
-  ground.x = (screen.x, 0, 240, -x_offset, x_offset);
+  ground.x = map_double(screen.x, 0, PX, -x_offset, x_offset);
 
   return ground;
 }
@@ -94,7 +95,7 @@ double compute_angle(Point3 target, Point3 origin) {
 }
 
 double distance_2d(Point3 from, Point3 to) {
-  return inch_to_mm*(sqrt((to.x - from.x) * (to.x - from.x) + (to.z - from.z) * (to.z - from.z)));
+  return sqrt((to.x - from.x) * (to.x - from.x) + (to.z - from.z) * (to.z - from.z));
 }
 
 double compute_steering_angle(Point3 target, Point3 vehicle) {
@@ -104,7 +105,9 @@ double compute_steering_angle(Point3 target, Point3 vehicle) {
 
 
 double Camera::get_servo_angle() {
-  return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
+  // TODO: Account for steering wheel angle range
+  // return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
+  return map_double(camera.steering_angle * -4.0, -90, 90, 10, 170);
 }
 
 bool Camera::old_read() {
@@ -130,40 +133,30 @@ bool Camera::old_read() {
 }
 
 bool Camera::read() {
-  Serial.printf("Rear focal point: (%f, %f, %f)\n", rear_focal.x, rear_focal.y, rear_focal.z);
-    if (this->camera.request() && this->camera.available()) {
-        HUSKYLENSResult result = this->camera.read();
-        Point2 target = { result.xTarget, PY - result.yTarget };
-        Point2 origin = { result.xOrigin, PY - result.yOrigin };
-        Serial.printf("Pixels: (%f, %f) to (%f, %f)\n", origin.x, origin.y, target.x, target.y);
+  if (!this->camera.request() || ! this->camera.available()) return false;
 
-        if (origin.y > target.y) {
-          Serial.println("Swapping target and origin");
-          std::swap(target, origin);
-        }
+  HUSKYLENSResult result = this->camera.read();
+  Point2 target = { result.xTarget, PY - result.yTarget };
+  Point2 origin = { result.xOrigin, PY - result.yOrigin };
 
+  if (origin.y > target.y) {
+    Serial.println("Swapping target and origin");
+    std::swap(target, origin);
+  }
 
-        // Point3 screen_target = from_pixel_coords(target);
-        // Point3 screen_origin = from_pixel_coords(origin);
-        // Serial.printf("Screen: from (%f, %f, %f) to (%f, %f, %f)\n", screen_origin.x, screen_origin.y, screen_origin.z, screen_target.x, screen_target.y, screen_target.z);
+  Serial.printf("Pixels: (%f, %f) to (%f, %f)\n", origin.x, origin.y, target.x, target.y);
 
-        // Point3 ground_target = project_ground(screen_target);
-        // Point3 ground_origin = project_ground(screen_origin);
-        // Serial.printf("Ground: from (%f, %f, %f) to (%f, %f, %f)\n", ground_origin.x, ground_origin.y, ground_origin.z, ground_target.x, ground_target.y, ground_target.z);
+  Point3 ground_target = project_ground(target);
+  Point3 ground_origin = project_ground(origin);
+  Serial.printf("Ground: from (%f, %f, %f) to (%f, %f, %f)\n", ground_origin.x, ground_origin.y, ground_origin.z, ground_target.x, ground_target.y, ground_target.z);
 
-        // Point3 screen_target = from_pixel_coords(target);
-        // Point3 screen_origin = from_pixel_coords(origin);
+  this->angle = compute_angle(ground_target, ground_origin) * 180.0 / M_PI;
+  Serial.printf("Wheelbase angle: %f, ", 180.0 / M_PI * compute_angle(ground_target, (Point3) {0, 0, -wheelbase}));
+  Serial.printf("Lookahead distance: %f, ", distance_2d((Point3) {0, 0, -wheelbase}, ground_target));
+  this->steering_angle = compute_steering_angle(ground_target, (Point3) {0, 0, -wheelbase}) * 180.0 / M_PI;
+  Serial.printf("Angle: %f, Steering angle: %f\n", this->angle, this->steering_angle);
 
-        Point3 ground_target = project_ground(target);
-        Point3 ground_origin = project_ground(origin);
-
-
-        this->angle = compute_angle(ground_target, ground_origin) * 180.0 / M_PI;
-        this->steering_angle = compute_steering_angle(ground_target, (Point3) {0, 0, -wheelbase}) * 180.0 / M_PI;
-        return true;
-    } else {
-      return false;
-    }
+  return true;
 }
 
 
