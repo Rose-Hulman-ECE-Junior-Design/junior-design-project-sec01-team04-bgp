@@ -22,8 +22,8 @@ const double back_focal_length = 1.3;// BFL = 1.3mm, EFL = 4.6mm
 
 const double cam_z_min = 3.5; // all in inches
 const double cam_z_max = 16;
-const double cam_x_max = 6.1875;
-const double cam_x_min = 3.3125;
+const double cam_x_max = 7.5;
+const double cam_x_min = 3.25;
 
 const double inch_to_mm = 25.4;
 const int wheelbase = 190/inch_to_mm;
@@ -74,10 +74,12 @@ Point3 from_pixel_coords(Point2 px) {
 Point3 project_ground(Point2 screen) {
   Point3 ground;
 
-  double x_offset = cam_x_min + (cam_x_max - cam_x_min) / (cam_z_max - cam_z_min) * (ground.z - cam_z_min);
+
+  ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
+  double x_offset = cam_x_min + (((cam_x_max - cam_x_min) / (cam_z_max - cam_z_min)) * (ground.z - cam_z_min));
   ground.x = map_double(screen.x, 0, PX, -x_offset, x_offset);
   ground.y = 0;
-  ground.z = map_double(screen.y, 0, PY, cam_z_min, cam_z_max);
+  
 
   return ground;
 }
@@ -98,7 +100,7 @@ double compute_steering_angle(Point3 target, Point3 vehicle) {
 double Camera::get_servo_angle() {
   // TODO: Account for steering wheel angle range
   // return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
-  return map_double(this->steering_angle * -4.0, -90, 90, 10, 170);
+  return map_double(this->steering_angle * -1, -26, 26, 10, 170);
 }
 
 bool Camera::old_read() {

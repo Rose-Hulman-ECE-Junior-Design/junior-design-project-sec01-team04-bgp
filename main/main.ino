@@ -76,6 +76,7 @@ void update() {
   if (!camera.read()) return;
 
   steering_servo.write(camera.get_servo_angle());
+  // steering_servo.write(170);
   motor_servo.write(speed);
 
   delay(100);
@@ -90,6 +91,7 @@ void loop() {
   case VehicleState::stopped:
     motor_servo.write(0);
     camera.read();
+    delay(3000);
     break;
   }
 }
