@@ -18,15 +18,16 @@ const int camera_height = 165;
 const double camera_dist_to_sensor = 50;
 const double camera_angle = 13 * M_PI / 60; // 39deg
 
-const double back_focal_length = 1.3;// BFL = 1.3mm, EFL = 4.6mm
+const double back_focal_length = 1.3; // BFL = 1.3mm, EFL = 4.6mm
 
-const double cam_z_min = 3.5; // all in inches
+// All in inches
+const double cam_z_min = 3.5;
 const double cam_z_max = 16;
 const double cam_x_max = 7.5;
 const double cam_x_min = 3.25;
 
 const double inch_to_mm = 25.4;
-const int wheelbase = 190/inch_to_mm;
+const int wheelbase = 190 / inch_to_mm;
 
 const double lookahead_distance = 5;
 
@@ -44,19 +45,13 @@ double map_double(double value, double from_low, double from_high, double to_low
   }
 }
 
-float mapfloat(float value, float fromlow, float fromhigh, float tolow, float tohigh) {
-  value -= fromlow;
-  value *= (tohigh - tolow) / (fromhigh-fromlow);
-  value += tolow;
-
-  return value;
-}
-
 const Point3 rear_focal = {
   0,
   camera_height + camera_dist_to_sensor * sin(camera_angle) + back_focal_length * sin(camera_angle),
   camera_dist_to_sensor * cos(camera_angle) - back_focal_length * cos(camera_angle)
 };
+
+const Point3 vehicle = {0, 0, -wheelbase};
 
 Point3 from_pixel_coords(Point2 px) {
   Point3 screen;
@@ -93,21 +88,20 @@ double distance_2d(Point3 from, Point3 to) {
 
 double compute_steering_angle(Point3 target, Point3 vehicle) {
   double lookahead_distance = distance_2d(vehicle, target);
-  return atan2(2.0 * wheelbase * sin(compute_angle(target, vehicle)), lookahead_distance);
+  printf("Lookahead distance (real): %f\n", lookahead_distance);
+  return -atan2(2.0 * wheelbase * sin(compute_angle(target, vehicle)), lookahead_distance);
 }
 
 double Camera::get_servo_angle() {
-  // TODO: Account for steering wheel angle range
-  // return map_double(this->steering_angle, -M_PI, M_PI, 10, 170);
-  return map_double(this->steering_angle * -1, -26, 26, 10, 170);
+  return map_double(this->steering_angle, -26, 26, 10, 170);
 }
 
 double get_slope(Point3 target, Point3 origin){
-  return ((target.z - origin.z)/(target.x - origin.x));
+  return (target.z - origin.z) / (target.x - origin.x);
 }
 
 double get_zintercept(Point3 target, Point3 origin){
-  return (origin.z - (get_slope(target, origin)*origin.x));
+  return origin.z - get_slope(target, origin) * origin.x;
 }
 
 Point3 get_lookahead_point(Point3 target, Point3 origin){
@@ -115,22 +109,27 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
 
   double m = get_slope(target, origin);
   double b = get_zintercept(target, origin);
+  printf("m: %f, b: %f\n", m, b);
+  double discriminant = sqrt(4 * m*m * b*b - 4 * (m*m + 1) * (b*b - lookahead_distance*lookahead_distance));
+  if (discriminant < 0) {
+    printf("DISCRIMINANT WAS NEGATIVE\n");
+    return target;
+  }
 
-  if (m > 0){
-    lookahead.x = ((((-2*m*b) + sqrt((2*m*b)*(2*m*b)-(4*((m*m)+1)*(b*b)-(lookahead_distance*lookahead_distance)))))/(2*((m*m)+1)));
-  } else if (m < 0){
-    lookahead.x = ((((-2*m*b) - sqrt((2*m*b)*(2*m*b)-(4*((m*m)+1)*(b*b)-(lookahead_distance*lookahead_distance)))))/(2*((m*m)+1)));
-  } else{
+  if (m > 0) {
+    lookahead.x = (-2 * m * b + discriminant)/(2 * (m*m + 1));
+  } else if (m < 0) {
+    lookahead.x = (-2 * m * b - discriminant)/(2 * (m*m + 1));
+  } else {
     lookahead.x = lookahead_distance;
   }
 
-  lookahead.z = ((m*lookahead.x) + b);
+  lookahead.z = m * lookahead.x + b;
   lookahead.y = 0;
 
   return lookahead;
 
 }
-
 
 bool Camera::old_read() {
   if (this->camera.request() && this->camera.available()) {
@@ -173,10 +172,10 @@ bool Camera::read() {
   Serial.printf("Ground: from (%f, %f, %f) to (%f, %f, %f)\n", ground_origin.x, ground_origin.y, ground_origin.z, ground_target.x, ground_target.y, ground_target.z);
 
   this->angle = compute_angle(ground_target, ground_origin) * 180.0 / M_PI;
-  Serial.printf("Wheelbase angle: %f, ", 180.0 / M_PI * compute_angle(ground_target, (Point3) {0, 0, -wheelbase}));
-  Serial.printf("Lookahead distance: %f, ", distance_2d((Point3) {0, 0, -wheelbase}, ground_target));
+  Serial.printf("Wheelbase angle: %f, ", 180.0 / M_PI * compute_angle(ground_target, vehicle));
+  Serial.printf("Lookahead distance: %f, ", distance_2d(vehicle, ground_target));
   Point3 lookahead_point = get_lookahead_point(ground_target, ground_origin);
-  this->steering_angle = compute_steering_angle(get_lookahead_point(ground_target, ground_origin), (Point3) {0, 0, -wheelbase}) * 180.0 / M_PI;
+  this->steering_angle = compute_steering_angle(lookahead_point, vehicle) * 180.0 / M_PI;
   
   Serial.printf("Angle: %f, Steering angle: %f\n", this->angle, this->steering_angle);
   Serial.printf("Lookahead Point: (%f, %f)\n", lookahead_point.x, lookahead_point.z);
