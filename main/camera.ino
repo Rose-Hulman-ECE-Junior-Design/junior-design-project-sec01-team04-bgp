@@ -29,7 +29,8 @@ const double cam_x_min = 3.25;
 const double inch_to_mm = 25.4;
 const int wheelbase = 190 / inch_to_mm;
 
-const double lookahead_distance = 5;
+const double lookahead_distance = 12;
+const double forward_offset = 8;
 
 double map_double(double value, double from_low, double from_high, double to_low, double to_high) {
   value -= from_low;
@@ -44,12 +45,6 @@ double map_double(double value, double from_low, double from_high, double to_low
     return value;
   }
 }
-
-const Point3 rear_focal = {
-  0,
-  camera_height + camera_dist_to_sensor * sin(camera_angle) + back_focal_length * sin(camera_angle),
-  camera_dist_to_sensor * cos(camera_angle) - back_focal_length * cos(camera_angle)
-};
 
 const Point3 vehicle = {0, 0, -wheelbase};
 
@@ -110,16 +105,17 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
   double m = get_slope(target, origin);
   double b = get_zintercept(target, origin);
   printf("m: %f, b: %f\n", m, b);
-  double discriminant = sqrt(4 * m*m * b*b - 4 * (m*m + 1) * (b*b - lookahead_distance*lookahead_distance));
+  double discriminant = 4 * m*m * b*b - 4 * (m*m + 1) * (b*b - lookahead_distance*lookahead_distance);
   if (discriminant < 0) {
     printf("DISCRIMINANT WAS NEGATIVE\n");
+    target.z -= forward_offset;
     return target;
   }
 
   if (m > 0) {
-    lookahead.x = (-2 * m * b + discriminant)/(2 * (m*m + 1));
+    lookahead.x = (-2 * m * b + sqrt(discriminant))/(2 * (m*m + 1));
   } else if (m < 0) {
-    lookahead.x = (-2 * m * b - discriminant)/(2 * (m*m + 1));
+    lookahead.x = (-2 * m * b - sqrt(discriminant))/(2 * (m*m + 1));
   } else {
     lookahead.x = lookahead_distance;
   }
@@ -127,8 +123,8 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
   lookahead.z = m * lookahead.x + b;
   lookahead.y = 0;
 
+  lookahead.z -= forward_offset;
   return lookahead;
-
 }
 
 bool Camera::old_read() {
