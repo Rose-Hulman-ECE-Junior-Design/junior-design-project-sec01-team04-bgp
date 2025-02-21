@@ -75,6 +75,8 @@ var start = document.getElementById('start');
 var stop = document.getElementById('stop');
 var motor_speed = document.getElementById('motor_speed');
 var camera_refresh_rate = document.getElementById('telemetry_refresh_rate');
+var lookahead_distance = document.getElementById('lookahead_distance');
+var forward_offset = document.getElementById('forward_offset');
 
 var enable = document.getElementById('enable');
 var disable = document.getElementById('disable');
@@ -104,6 +106,20 @@ motor_speed.addEventListener('change', function() {
   const speed = parseInt(this.value, 10);
   json_rpc_call('set_speed', [speed], () => {
     console.log("Set speed to " + speed);
+  });
+});
+
+lookahead_distance.addEventListener('change', function() {
+  const distance = parseInt(this.value, 10);
+  json_rpc_call('set_lookahead_distance', [distance], () => {
+    console.log("Set lookahead distance to " + distance);
+  });
+});
+
+forward_offset.addEventListener('change', function() {
+  const forward_offset = parseInt(this.value, 10);
+  json_rpc_call('set_forward_offset', [forward_offset], () => {
+    console.log("Set forward offset to " + forward_offset);
   });
 });
 

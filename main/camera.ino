@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "state.h"
 #include <Wire.h>
 #include <math.h>
 
@@ -29,8 +30,6 @@ const double cam_x_min = 3.25;
 const double inch_to_mm = 25.4;
 const int wheelbase = 190 / inch_to_mm;
 
-const double lookahead_distance = 12;
-const double forward_offset = 8;
 
 double map_double(double value, double from_low, double from_high, double to_low, double to_high) {
   value -= from_low;
@@ -112,7 +111,9 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
     return target;
   }
 
-  if (m > 0) {
+  if (m != m) { // slope is NaN
+    m = 1e100;
+  } else if (m > 0) {
     lookahead.x = (-2 * m * b + sqrt(discriminant))/(2 * (m*m + 1));
   } else if (m < 0) {
     lookahead.x = (-2 * m * b - sqrt(discriminant))/(2 * (m*m + 1));

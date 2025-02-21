@@ -71,6 +71,24 @@ hr {
   justify-content: space-evenly;
 }
 
+.vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+
+.stretch {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.stretch input {
+  max-width: 50px;
+}
+
 #camera_view {
   border: var(--line-width) solid var(--line-color);
 }

@@ -13,23 +13,15 @@ const char* password = nullptr;
 // It also starts the WiFi network based on the ssid and password defined above.
 class Api {
 public:
-    Api(Telemetry* tl, VehicleState* st, int* speed, Camera* camera) : tl(tl), st(st), speed(speed), camera(camera), server(80) {};
+    Api(Telemetry* tl, Camera* camera) : tl(tl), camera(camera), server(80) {};
 
     void init(); // Start the webserver
-    
-    void start(); // Start the vehicle
 
-    void stop(); // Stop the vehicle
-
-    void set_speed(int speed); // Set the vehicle's speed
-
-    CameraView camera_view();
+    CameraView camera_view(); // Get line data from the camera
 
     TelemetryData telemetry(); // Get telemetry data from the vehicle
 private:
     AsyncWebServer server;
     Telemetry* tl;
-    VehicleState* st;
     Camera* camera;
-    int* speed;
 };

@@ -20,10 +20,8 @@ QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
 
 // Telemetry, API, and camera objects
 Telemetry tl;
-VehicleState state = VehicleState::stopped; // Current state of the vehicle
-int speed = 30; // Default motor speed
 Camera camera;
-Api api(&tl, &state, &speed, &camera);
+Api api(&tl, &camera);
 
 
 void setup() {
@@ -89,8 +87,8 @@ void loop() {
     break;
   case VehicleState::stopped:
     motor_servo.write(0);
-    camera.read();
-    delay(3000);
+    // camera.read();
+    delay(100);
     break;
   }
 }

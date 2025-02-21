@@ -27,20 +27,31 @@
       <hr>
 
       <div class="controls">
-        <button id="start">Start</button>
-        <button id="stop" disabled>Stop</button>
-        <label>
-          Motor Speed
-          <input id="motor_speed" type="number" min="0" max="150" placeholder="30" />
-        </label>
-      </div>
+        <div class="vertical">
+          <button id="start">Start</button>
+          <button id="stop" disabled>Stop</button>
+          <label class="stretch">
+            Motor Speed
+            <input id="motor_speed" type="number" min="0" max="150" placeholder="30" />
+          </label>
+          <label class="stretch">
+            Lookahead Distance
+            <input id="lookahead_distance" type="number" placeholder="12" />
+          </label>
+          <label class="stretch">
+            Forward Offset
+            <input id="forward_offset" type="number" placeholder="8" />
+          </label>
+        </div>
 
-      <canvas id="camera_view" width="320" height="240"></canvas>
-      <div class="controls">
-        <label>
-          Refresh Rate (ms)
-          <input id="camera_refresh_rate" type="number" min="0" placeholder="1000" />
-        </label>
+        <div>
+          <canvas id="camera_view" width="320" height="240"></canvas>
+          <div class="controls">
+          <label>
+            Refresh Rate (ms)
+            <input id="camera_refresh_rate" type="number" min="0" placeholder="1000" />
+          </label>
+        </div>
       </div>
     </section>
 

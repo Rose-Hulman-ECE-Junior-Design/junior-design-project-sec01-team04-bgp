@@ -3,39 +3,38 @@
 #include <LittleFS.h>
 #include "api.h"
 
-void Api::start() {
-  *this->st = VehicleState::started;
-  Serial.println("Started!");
-}
-
 static void handle_start(struct jsonrpc_request* r) {
-  auto api = (Api*)r->userdata;
-  api->start();
+  state = VehicleState::started;
+  Serial.println("Started!");
   jsonrpc_return_success(r, "{}");
-}
-
-void Api::stop() {
-  *this->st = VehicleState::stopped;
-  Serial.println("Stopped!");
 }
 
 static void handle_stop(struct jsonrpc_request* r) {
-  auto api = (Api*)r->userdata;
-  api->stop();
+  state = VehicleState::stopped;
+  Serial.println("Stopped!");
   jsonrpc_return_success(r, "{}");
-}
-
-void Api::set_speed(int speed) {
-  speed = constrain(speed, 0, 150);
-  *this->speed = speed;
-  Serial.printf("Set speed to %d\n", speed);
 }
 
 static void handle_set_speed(struct jsonrpc_request* r) {
   auto api = (Api*)r->userdata;
-  double speed;
-  mjson_get_number(r->params, r->params_len, "$[0]", &speed);
-  api->set_speed((int)speed);
+  double new_speed;
+  mjson_get_number(r->params, r->params_len, "$[0]", &new_speed);
+  speed = constrain((int)new_speed, 0, 150);
+  Serial.printf("Set speed to %d\n", speed);
+  jsonrpc_return_success(r, "{}");
+}
+
+static void handle_set_lookahead_distance(struct jsonrpc_request* r) {
+  auto api = (Api*)r->userdata;
+  mjson_get_number(r->params, r->params_len, "$[0]", &lookahead_distance);
+  Serial.printf("Set lookahead_distance to %d\n", lookahead_distance);
+  jsonrpc_return_success(r, "{}");
+}
+
+static void handle_set_forward_offset(struct jsonrpc_request* r) {
+  auto api = (Api*)r->userdata;
+  mjson_get_number(r->params, r->params_len, "$[0]", &forward_offset);
+  Serial.printf("Set forward offset to %d\n", forward_offset);
   jsonrpc_return_success(r, "{}");
 }
 
@@ -97,6 +96,8 @@ void Api::init() {
   jsonrpc_export("start", handle_start);
   jsonrpc_export("stop", handle_stop);
   jsonrpc_export("set_speed", handle_set_speed);
+  jsonrpc_export("set_lookahead_distance", handle_set_lookahead_distance);
+  jsonrpc_export("set_forward_offset", handle_set_forward_offset);
   jsonrpc_export("telemetry", handle_telemetry);
   jsonrpc_export("camera_view", handle_camera_view);
   
