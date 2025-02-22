@@ -73,6 +73,8 @@ function add_data(values) {
 
 var start = document.getElementById('start');
 var stop = document.getElementById('stop');
+var timer_value = document.getElementById('timer_value');
+var timed_stop = document.getElementById('timed_stop');
 var motor_speed = document.getElementById('motor_speed');
 var camera_refresh_rate = document.getElementById('telemetry_refresh_rate');
 var lookahead_distance = document.getElementById('lookahead_distance');
@@ -91,15 +93,23 @@ start.onclick = function() {
 
   start.disabled = true;
   stop.disabled = false;
+  timed_stop.disabled = false;
 };
 
-stop.onclick = function() {
+function stop() {
   json_rpc_call('stop', [], () => {
     console.log("Stopped vehicle");
   });
 
   start.disabled = false;
   stop.disabled = true;
+  timed_stop.disabled = true;
+}
+
+stop.onclick = stop;
+timed_stop.onclick = function() {
+  timed_stop.disabled = true;
+  window.setTimeout(stop, parseInt(timer_value.value) * 1000);
 };
 
 motor_speed.addEventListener('change', function() {

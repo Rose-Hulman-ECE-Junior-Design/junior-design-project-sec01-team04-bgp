@@ -75,8 +75,6 @@ void update() {
 
   steering_servo.write(camera.get_servo_angle());
   motor_servo.write(speed);
-
-  delay(100);
 }
 
 void loop() {
@@ -84,10 +82,11 @@ void loop() {
   case VehicleState::started:
     update();
     // old_update();
+    delay(100);
     break;
   case VehicleState::stopped:
     motor_servo.write(0);
-    // camera.read();
+    steering_servo.write(90);
     delay(100);
     break;
   }

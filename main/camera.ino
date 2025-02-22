@@ -112,7 +112,7 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
   }
 
   if (m != m) { // slope is NaN
-    m = 1e100;
+    lookahead.x = 0;
   } else if (m > 0) {
     lookahead.x = (-2 * m * b + sqrt(discriminant))/(2 * (m*m + 1));
   } else if (m < 0) {

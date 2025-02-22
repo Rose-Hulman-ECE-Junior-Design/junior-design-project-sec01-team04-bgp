@@ -2,6 +2,7 @@
 #include <mjson.h>
 #include <LittleFS.h>
 #include "api.h"
+#include "state.h"
 
 static void handle_start(struct jsonrpc_request* r) {
   state = VehicleState::started;

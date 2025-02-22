@@ -2,7 +2,6 @@
 
 #include <ESPAsyncWebServer.h>
 #include "telemetry.h"
-#include "state.h"
 #include "camera.h"
 
 // WiFi network ssid and password
