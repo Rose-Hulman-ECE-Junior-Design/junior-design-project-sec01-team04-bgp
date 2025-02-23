@@ -91,7 +91,11 @@ double Camera::get_servo_angle() {
 }
 
 double get_slope(Point3 target, Point3 origin){
+  if(target.x != origin.x){
   return (target.z - origin.z) / (target.x - origin.x);
+  }else{
+    return 0;
+  }
 }
 
 double get_zintercept(Point3 target, Point3 origin){
@@ -111,8 +115,8 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
     return target;
   }
 
-  if (m != m) { // slope is NaN
-    lookahead.x = 0;
+  if (m == 0) { // slope is NaN
+    lookahead.x = 0;               
   } else if (m > 0) {
     lookahead.x = (-2 * m * b + sqrt(discriminant))/(2 * (m*m + 1));
   } else if (m < 0) {
