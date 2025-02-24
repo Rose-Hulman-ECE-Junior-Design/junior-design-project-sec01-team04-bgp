@@ -192,7 +192,7 @@ function get_telemetry() {
   window.setTimeout(get_telemetry, telemetry_timeout);
 }
 
-// window.setTimeout(get_telemetry, telemetry_timeout);
+window.setTimeout(get_telemetry, telemetry_timeout);
 
 function draw_camera_view(info) {
   var canvas = document.getElementById('camera_view');
@@ -221,7 +221,7 @@ function get_camera_view() {
   window.setTimeout(get_camera_view, camera_timeout);
 }
 
-// window.setTimeout(get_camera_view, camera_timeout);
+window.setTimeout(get_camera_view, camera_timeout);
 
 
 class CurveSelector {
