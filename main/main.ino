@@ -80,15 +80,16 @@ void old_update() {
   AnglePID.Compute();
 
   steering_servo.write(map_double(Output_angle, -100, 100, 10, 170));
-  motor_servo.write(state.data.speed);
+  motor_servo.write(state.data.speed.apply(Output_angle));
 }
 
 // Update motor speed and steering angle based on pure pursuit algorithm
 void update() {
   if (!camera.read()) return;
 
-  steering_servo.write(camera.get_servo_angle());
-  motor_servo.write(state.data.speed);
+  double angle = camera.get_servo_angle();
+  steering_servo.write(angle);
+  motor_servo.write(state.data.speed.apply(angle));
 }
 
 void loop() {

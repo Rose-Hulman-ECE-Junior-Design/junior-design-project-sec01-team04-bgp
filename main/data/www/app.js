@@ -227,16 +227,25 @@ window.setTimeout(get_camera_view, camera_timeout);
 class CurveSelector {
   constructor(opts) {
     this.canvas = opts.canvas;
-    this.onchange = opts.onchange === undefined ? () => {} : opts.onchange;
-    this.x_min = opts.x.range[0];
-    this.x_max = opts.x.range[1];
+    this.curve_number = opts.curve_number;
     this.x_label = opts.x.label;
-    this.y_min = opts.y.range[0];
-    this.y_max = opts.y.range[1];
     this.y_label = opts.y.label;
 
-    this.point1 = { x: this.x_min, y: this.y_min };
-    this.point2 = { x: this.x_max, y: this.y_max };
+    json_rpc_call('get_defaults', [this.curve_number], (res) => {
+      this.x_min = res.x_min;
+      this.x_max = res.x_max;
+      this.y_min = res.y_min;
+      this.y_max = res.y_max;
+
+      this.point1 = { x: res.x_start, y: res.y_start };
+      this.point2 = { x: res.x_end, y: res.y_end };
+    });
+
+    this.onchange = () => {
+      json_rpc_call('set_curve', [this.curve_number, this.point1.x, this.point2.x, this.point1.y, this.point2.y], () => {
+        console.log("Set curve " + this.curve_number);
+      };
+    };
 
     var drag_point = null;
     this.canvas.onmousedown = async (e) => {
@@ -394,53 +403,23 @@ class CurveSelector {
   }
 }
 
-var lookahead_distance_curve = new CurveSelector({
-  canvas: document.getElementById('lookahead_distance_graph'),
-  x: {
-    range: [0, 90],
-    label: 'Steering Angle (deg)',
-  },
-  y: {
-    range: [0, 30],
-    label: 'Lookahead Distance',
-  },
+var speed_curve = new CurveSelector({
+  canvas: document.getElementById('speed_graph'),
+  curve_number: 0,
+  x_label: 'Steering Angle (deg)',
+  y_label: 'Speed',
 });
 
-lookahead_distance_curve.onchange = function() {
-  console.log(this.point1);
-  console.log(this.point2);
-};
+var lookahead_distance_curve = new CurveSelector({
+  canvas: document.getElementById('lookahead_distance_graph'),
+  curve_number: 1,
+  x_label: 'Steering Angle (deg)',
+  y_label: 'Lookahead Distance',
+});
 
 var forward_offset_curve = new CurveSelector({
   canvas: document.getElementById('forward_offset_graph'),
-  x: {
-    range: [0, 90],
-    label: 'Steering Angle (deg)',
-  },
-  y: {
-    range: [0, 30],
-    label: 'Forward Offset',
-  },
+  curve_number: 2,
+  x_label: 'Steering Angle (deg)',
+  y_label: 'Forward Offset',
 });
-
-forward_offset_curve.onchange = function() {
-  console.log(this.point1);
-  console.log(this.point2);
-};
-
-var speed_curve = new CurveSelector({
-  canvas: document.getElementById('speed_graph'),
-  x: {
-    range: [0, 90],
-    label: 'Steering Angle (deg)',
-  },
-  y: {
-    range: [0, 120],
-    label: 'Speed',
-  },
-});
-
-speed_curve.onchange = function() {
-  console.log(this.point1);
-  console.log(this.point2);
-};

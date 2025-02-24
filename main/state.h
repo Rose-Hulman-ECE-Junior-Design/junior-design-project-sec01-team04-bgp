@@ -8,9 +8,24 @@ enum State {
 };
 
 typedef struct {
-  int speed = 30;                  // Default motor speed
-  double lookahead_distance = 12;  // Default lookahead distance
-  double forward_offset = 8;       // Default forward offset
+  double x_min;
+  double x_start;
+  double x_end;
+  double x_max;
+  double y_min;
+  double y_start;
+  double y_end;
+  double y_max;
+
+  void update(double x_start, double x_end, double y_start, double y_end);
+
+  double apply(double x);
+} CurveData;
+
+typedef struct {
+  CurveData speed = { 0, 0, 90, 90, 0, 30, 30, 120 };              // Default motor speed
+  CurveData lookahead_distance = { 0, 0, 90, 90, 0, 10, 10, 30 };  // Default lookahead distance
+  CurveData forward_offset = { 0, 0, 90, 90, 0, 4, 4, 30 };        // Default forward offset
 } Data;
 
 // Represents the possible states of the vehicle
@@ -23,7 +38,7 @@ public:
   const char* config_path = "/config.txt";
   fs::FS& fs;
   State state = State::stopped;
-  Data data = (Data){};
+  Data data = {};
 
   void read();
   void write();

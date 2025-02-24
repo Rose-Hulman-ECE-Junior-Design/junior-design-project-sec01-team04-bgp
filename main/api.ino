@@ -24,57 +24,67 @@ static void handle_stop(struct jsonrpc_request* r) {
   jsonrpc_return_success(r, "{}");
 }
 
-void Api::set_speed(int speed) {
-  this->state->data.speed = constrain(speed, 0, 150);
+CurveData* Api::get_curve(int curve) {
+  switch (curve) {
+  case 0:
+    return &this->state->data.speed;
+  case 1:
+    return &this->state->data.lookahead_distance;
+  case 2:
+    return &this->state->data.forward_offset;
+  default:
+    return nullptr;
+  }
+}
+
+void Api::set_curve(CurveData* curve_data, double x_start, double x_end, double y_start, double y_end) {
+  curve_data->update(x_start, x_end, y_start, y_end);
   this->state->write();
+  Serial.println("Updated state!");
 }
 
-static void handle_set_speed(struct jsonrpc_request* r) {
+static void handle_set_curve(struct jsonrpc_request* r) {
   auto api = (Api*)r->userdata;
-  double speed;
-  mjson_get_number(r->params, r->params_len, "$[0]", &speed);
-  Serial.printf("Set speed to %d\n", speed);
-  api->set_speed(speed);
+  double curve, x_start, x_end, y_start, y_end;
+  mjson_get_number(r->params, r->params_len, "$[0]", &curve);
+  mjson_get_number(r->params, r->params_len, "$[1]", &x_start);
+  mjson_get_number(r->params, r->params_len, "$[2]", &x_end);
+  mjson_get_number(r->params, r->params_len, "$[3]", &y_start);
+  mjson_get_number(r->params, r->params_len, "$[4]", &y_end);
+
+  CurveData* curve_data = api->get_curve((int)curve);
+  if (curve_data == nullptr) {
+    jsonrpc_return_error(r, 1, "Invalid curve number", "{%Q:%g}", "curve", (int)curve);
+    return;
+  }
+
+  Serial.printf("Set curve %d\n", (int)curve);
+  api->set_curve(curve_data, x_start, x_end, y_start, y_end);
   jsonrpc_return_success(r, "{}");
-}
-
-void Api::set_lookahead_distance(double distance) {
-  this->state->data.lookahead_distance = max(distance, 0.0);
-  this->state->write();
-}
-
-static void handle_set_lookahead_distance(struct jsonrpc_request* r) {
-  auto api = (Api*)r->userdata;
-  double distance;
-  mjson_get_number(r->params, r->params_len, "$[0]", &distance);
-  Serial.printf("Set lookahead distance to %f\n", distance);
-  api->set_lookahead_distance(distance);
-  jsonrpc_return_success(r, "{}");
-}
-
-void Api::set_forward_offset(double offset) {
-  this->state->data.forward_offset = max(offset, 0.0);
-  this->state->write();
-}
-
-static void handle_set_forward_offset(struct jsonrpc_request* r) {
-  auto api = (Api*)r->userdata;
-  double forward_offset;
-  mjson_get_number(r->params, r->params_len, "$[0]", &forward_offset);
-  Serial.printf("Set forward offset to %f\n", forward_offset);
-  api->set_forward_offset(forward_offset);
-  jsonrpc_return_success(r, "{}");
-}
-
-Data Api::get_defaults() {
-  return this->state->data;
 }
 
 static void handle_get_defaults(struct jsonrpc_request* r) {
   auto api = (Api*)r->userdata;
-  Data data = api->get_defaults();
-  Serial.printf("Sending config defaults: ld = %f, fo = %f, speed = %d\n", data.lookahead_distance, data.forward_offset, data.speed);
-  jsonrpc_return_success(r, "{%Q:%g,%Q:%g,%Q:%g}", "speed", (double)data.speed, "lookahead_distance", data.lookahead_distance, "forward_offset", data.forward_offset);
+  double curve;
+  mjson_get_number(r->params, r->params_len, "$[0]", &curve);
+  CurveData* data = api->get_curve((int)curve);
+  if (data == nullptr) {
+    jsonrpc_return_error(r, 1, "Invalid curve number", "{%Q:%g}", "curve", (int)curve);
+    return;
+  }
+
+  // Serial.printf("Sending config defaults: ld = %f, fo = %f, speed = %d\n", data.lookahead_distance, data.forward_offset, data.speed);
+  jsonrpc_return_success(r,
+    "{%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g}",
+    "x_min", data->x_min,
+    "x_start", data->x_start,
+    "x_end", data->x_end,
+    "x_max", data->x_max,
+    "y_min", data->y_min,
+    "y_start", data->y_start,
+    "y_end", data->y_end,
+    "y_max", data->y_max
+  );
 }
 
 TelemetryData Api::telemetry() {
@@ -128,9 +138,7 @@ void Api::init() {
   jsonrpc_init(NULL, NULL);
   jsonrpc_export("start", handle_start);
   jsonrpc_export("stop", handle_stop);
-  jsonrpc_export("set_speed", handle_set_speed);
-  jsonrpc_export("set_lookahead_distance", handle_set_lookahead_distance);
-  jsonrpc_export("set_forward_offset", handle_set_forward_offset);
+  jsonrpc_export("set_curve", handle_set_curve);
   jsonrpc_export("get_defaults", handle_get_defaults);
   jsonrpc_export("telemetry", handle_telemetry);
   jsonrpc_export("camera_view", handle_camera_view);

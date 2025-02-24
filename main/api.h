@@ -22,13 +22,9 @@ public:
 
   void stop();
 
-  void set_speed(int);
+  CurveData* get_curve(int curve);
 
-  void set_lookahead_distance(double);
-
-  void set_forward_offset(double);
-
-  Data get_defaults();
+  void set_curve(CurveData* curve_data, double x_start, double x_end, double y_start, double y_end);
 
   CameraView camera_view();  // Get line data from the camera
 

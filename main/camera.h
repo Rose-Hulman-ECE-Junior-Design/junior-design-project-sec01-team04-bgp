@@ -27,7 +27,7 @@ public:
   Point2 origin;
   Point2 target;
   double angle;           // Angle of line in degrees [-90, 90]
-  double steering_angle;  // Angle to steer to in degrees [-90, 90]
+  double steering_angle = 0;  // Angle to steer to in degrees [-90, 90]
   double offset;
 
   Camera(VehicleState* state)

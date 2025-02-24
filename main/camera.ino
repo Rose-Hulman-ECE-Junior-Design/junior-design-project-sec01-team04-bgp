@@ -101,8 +101,8 @@ double get_zintercept(Point3 target, Point3 origin) {
 
 Point3 Camera::get_lookahead_point(Point3 target, Point3 origin) {
   Point3 lookahead;
-  double lookahead_distance = this->state->data.lookahead_distance;
-  double forward_offset = this->state->data.forward_offset;
+  double lookahead_distance = this->state->data.lookahead_distance.apply(this->steering_angle);
+  double forward_offset = this->state->data.forward_offset.apply(this->steering_angle);
 
   double m = get_slope(target, origin);
   double b = get_zintercept(target, origin);
