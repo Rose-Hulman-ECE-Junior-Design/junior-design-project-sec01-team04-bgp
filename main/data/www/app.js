@@ -222,8 +222,10 @@ class CurveSelector {
     this.onchange = opts.onchange === undefined ? () => {} : opts.onchange;
     this.x_min = opts.x.range[0];
     this.x_max = opts.x.range[1];
+    this.x_label = opts.x.label;
     this.y_min = opts.y.range[0];
     this.y_max = opts.y.range[1];
+    this.y_label = opts.y.label;
 
     this.point1 = { x: this.x_min, y: this.y_min };
     this.point2 = { x: this.x_max, y: this.y_max };
@@ -247,6 +249,7 @@ class CurveSelector {
       drag_point.y += move.y;
       this.constrainPoint(drag_point);
       this.draw();
+      this.drawLabel(drag_point);
     }
 
     this.canvas.onmouseup = (e) => {
@@ -254,27 +257,12 @@ class CurveSelector {
 
       if (drag_point != null) {
         drag_point = null;
+        this.draw();
         this.onchange();
       }
     }
 
     this.draw();
-  }
-
-  draw() {
-    var canvas = this.canvas;
-    var ctx = canvas.getContext('2d');
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    this.drawPoint(this.point1);
-    this.drawPoint(this.point2);
-
-    const start = { x: this.x_min, y: this.point1.y };
-    const end = { x: this.x_max, y: this.point2.y };
-    this.drawLine(start, this.point1);
-    this.drawLine(this.point1, this.point2);
-    this.drawLine(this.point2, end);
   }
 
   getPosition(event) {
@@ -297,8 +285,16 @@ class CurveSelector {
   }
 
   constrainPoint(point) {
+    // Points must be within bounds
     point.x = Math.max(Math.min(point.x, this.x_max), this.x_min);
     point.y = Math.max(Math.min(point.y, this.y_max), this.y_min);
+    // Point can't go beyond other point
+    // (That would create a curve that isn't a one-to-one function)
+    if (point.x == this.point1.x) {
+      point.x = Math.min(point.x, this.point2.x);
+    } else {
+      point.x = Math.max(point.x, this.point1.x);
+    }
   }
 
   hits(point, e) {
@@ -306,6 +302,30 @@ class CurveSelector {
     const point1 = this.toCanvasCoords(point);
     const point2 = this.getPosition(e);
     return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2) < hit_radius;
+  }
+
+  draw() {
+    var canvas = this.canvas;
+    var ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // ctx.scale(0.9, 0.9);
+    // ctx.translate(0.1 * this.canvas.width, -0.1 * this.canvas.height);
+
+    this.drawPoint(this.point1);
+    this.drawPoint(this.point2);
+
+    const start = { x: this.x_min, y: this.point1.y };
+    const end = { x: this.x_max, y: this.point2.y };
+    this.drawLine(start, this.point1);
+    this.drawLine(this.point1, this.point2);
+    this.drawLine(this.point2, end);
+
+    // ctx.translate(-0.1 * this.canvas.width, 0.1 * this.canvas.height);
+    // ctx.resetTransform();
+
+    // this.drawAxis();
   }
 
   drawPoint(point) {
@@ -336,12 +356,74 @@ class CurveSelector {
     ctx.stroke();
     ctx.closePath();
   }
+
+  drawLabel(point) {
+    var ctx = this.canvas.getContext('2d');
+
+    const real_point = this.toCanvasCoords(point);
+    const line_height = 15;
+    const line1 = `${this.x_label}: ${point.x.toPrecision(4)}`;
+    const line2 = `${this.y_label}: ${point.y.toPrecision(4)}`;
+    const text_width = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width);
+    const text_x = Math.min(real_point.x, this.canvas.width - text_width);
+    const text_y = Math.max(real_point.y, 2 * line_height);
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "#000000";
+    ctx.textBaseline = "bottom";
+    ctx.lineWidth = 3;
+    ctx.strokeText(line1, text_x, text_y);
+    ctx.strokeText(line2, text_x, text_y - line_height);
+    ctx.fillText(line1, text_x, text_y);
+    ctx.fillText(line2, text_x, text_y - line_height);
+  }
+
+  drawAxis() {
+    var ctx = this.canvas.getContext('2d');
+    // ctx.scale(0.9, 0.9);
+    ctx.translate(0.1 * this.canvas.width, -0.1 * this.canvas.height);
+  }
 }
 
-var curve1 = new CurveSelector({
+var lookahead_distance_curve = new CurveSelector({
+  canvas: document.getElementById('lookahead_distance_graph'),
+  x: {
+    range: [0, 90],
+    label: 'Steering Angle (degrees)',
+  },
+  y: {
+    range: [0, 30],
+    label: 'Lookahead Distance',
+  },
+});
+
+lookahead_distance_curve.onchange = function() {
+  console.log(this.point1);
+  console.log(this.point2);
+};
+
+var forward_offset_curve = new CurveSelector({
+  canvas: document.getElementById('forward_offset_graph'),
+  x: {
+    range: [0, 90],
+    label: 'Steering Angle (degrees)',
+  },
+  y: {
+    range: [0, 30],
+    label: 'Forward Offset',
+  },
+});
+
+forward_offset_curve.onchange = function() {
+  console.log(this.point1);
+  console.log(this.point2);
+};
+
+var speed_curve = new CurveSelector({
   canvas: document.getElementById('speed_graph'),
   x: {
-    range: [-90, 90],
+    range: [0, 90],
     label: 'Steering Angle (degrees)',
   },
   y: {
@@ -350,7 +432,7 @@ var curve1 = new CurveSelector({
   },
 });
 
-curve1.onchange = function() {
+speed_curve.onchange = function() {
   console.log(this.point1);
   console.log(this.point2);
 };

@@ -58,10 +58,19 @@
         </div>
       </div>
 
-      <div>
-        <canvas id="lookahead_distance_graph" class="bordered" width="320" height="240"></canvas>
-        <canvas id="forward_offset_graph" class="bordered" width="320" height="240"></canvas>
-        <canvas id="speed_graph" class="bordered" width="320" height="240"></canvas>
+      <div id="graph_container">
+        <div class="graph">
+          <canvas id="lookahead_distance_graph" class="bordered" width="320" height="240"></canvas>
+          <p>Lookahead Distance vs. Steering Angle</p>
+        </div>
+        <div class="graph">
+          <canvas id="forward_offset_graph" class="bordered" width="320" height="240"></canvas>
+          <p>Forward Offset vs. Steering Angle</p>
+        </div>
+        <div class="graph">
+          <canvas id="speed_graph" class="bordered" width="320" height="240"></canvas>
+          <p>Speed vs. Steering Angle</p>
+        </div>
       </div>
     </section>
 
