@@ -73,6 +73,11 @@ function add_data(values) {
   chart.update();
 }
 
+function clear_fn() {
+  chart.data.datasets.forEach(dataset => { dataset.data.length = 0; });
+  chart.update();
+}
+
 var download = document.getElementById('download');
 
 download.onclick = function() {
@@ -100,6 +105,7 @@ var forward_offset = document.getElementById('forward_offset');
 
 var enable = document.getElementById('enable');
 var disable = document.getElementById('disable');
+var clear = document.getElementById('clear');
 var telemetry_refresh_rate = document.getElementById('telemetry_refresh_rate');
 
 start.onclick = function() {
@@ -169,6 +175,8 @@ disable.onclick = function() {
   enable.disabled = false;
   disable.disabled = true;
 }
+
+clear.onclick = clear_fn;
 
 telemetry_refresh_rate.addEventListener('change', function() {
   telemetry_timeout = parseInt(this.value, 10);
@@ -390,7 +398,7 @@ var lookahead_distance_curve = new CurveSelector({
   canvas: document.getElementById('lookahead_distance_graph'),
   x: {
     range: [0, 90],
-    label: 'Steering Angle (degrees)',
+    label: 'Steering Angle (deg)',
   },
   y: {
     range: [0, 30],
@@ -407,7 +415,7 @@ var forward_offset_curve = new CurveSelector({
   canvas: document.getElementById('forward_offset_graph'),
   x: {
     range: [0, 90],
-    label: 'Steering Angle (degrees)',
+    label: 'Steering Angle (deg)',
   },
   y: {
     range: [0, 30],
@@ -424,7 +432,7 @@ var speed_curve = new CurveSelector({
   canvas: document.getElementById('speed_graph'),
   x: {
     range: [0, 90],
-    label: 'Steering Angle (degrees)',
+    label: 'Steering Angle (deg)',
   },
   y: {
     range: [0, 120],
