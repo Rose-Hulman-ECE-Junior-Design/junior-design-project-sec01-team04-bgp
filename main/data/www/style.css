@@ -89,7 +89,7 @@ hr {
   max-width: 50px;
 }
 
-#camera_view {
+.bordered {
   border: var(--line-width) solid var(--line-color);
 }
 

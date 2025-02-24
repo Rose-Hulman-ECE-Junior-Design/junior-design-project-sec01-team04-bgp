@@ -50,12 +50,18 @@
         </div>
 
         <div>
-          <canvas id="camera_view" width="320" height="240"></canvas>
+          <canvas id="camera_view" class="bordered" width="320" height="240"></canvas>
           <label class="stretch">
             Refresh Rate (ms)
             <input id="camera_refresh_rate" type="number" min="0" value="1000" placeholder="1000" />
           </label>
         </div>
+      </div>
+
+      <div>
+        <canvas id="lookahead_distance_graph" class="bordered" width="320" height="240"></canvas>
+        <canvas id="forward_offset_graph" class="bordered" width="320" height="240"></canvas>
+        <canvas id="speed_graph" class="bordered" width="320" height="240"></canvas>
       </div>
     </section>
 

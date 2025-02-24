@@ -184,7 +184,7 @@ function get_telemetry() {
   window.setTimeout(get_telemetry, telemetry_timeout);
 }
 
-window.setTimeout(get_telemetry, telemetry_timeout);
+// window.setTimeout(get_telemetry, telemetry_timeout);
 
 function draw_camera_view(info) {
   var canvas = document.getElementById('camera_view');
@@ -213,19 +213,52 @@ function get_camera_view() {
   window.setTimeout(get_camera_view, camera_timeout);
 }
 
-window.setTimeout(get_camera_view, camera_timeout);
+// window.setTimeout(get_camera_view, camera_timeout);
 
 
 class CurveSelector {
-  constructor(canvas, x_min, x_max, y_min, y_max) {
-    this.canvas = canvas;
-    this.x_min = x_min;
-    this.x_max = x_max;
-    this.y_min = y_min;
-    this.y_max = y_max;
+  constructor(opts) {
+    this.canvas = opts.canvas;
+    this.onchange = opts.onchange === undefined ? () => {} : opts.onchange;
+    this.x_min = opts.x.range[0];
+    this.x_max = opts.x.range[1];
+    this.y_min = opts.y.range[0];
+    this.y_max = opts.y.range[1];
 
-    this.point1 = { x: x_min, y: y_min };
-    this.point2 = { x: x_max, y: y_max };
+    this.point1 = { x: this.x_min, y: this.y_min };
+    this.point2 = { x: this.x_max, y: this.y_max };
+
+    var drag_point = null;
+    this.canvas.onmousedown = async (e) => {
+      await this.canvas.requestPointerLock();
+
+      if (this.hits(this.point1, e)) {
+        drag_point = this.point1;
+      } else if (this.hits(this.point2, e)) {
+        drag_point = this.point2;
+      }
+    };
+
+    this.canvas.onmousemove = (e) => {
+      if (drag_point == null) return;
+
+      const move = this.scaleCanvasMovement(e);
+      drag_point.x += move.x;
+      drag_point.y += move.y;
+      this.constrainPoint(drag_point);
+      this.draw();
+    }
+
+    this.canvas.onmouseup = (e) => {
+      document.exitPointerLock();
+
+      if (drag_point != null) {
+        drag_point = null;
+        this.onchange();
+      }
+    }
+
+    this.draw();
   }
 
   draw() {
@@ -234,46 +267,90 @@ class CurveSelector {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    drawPoint(this.point1);
-    drawPoint(this.point2);
+    this.drawPoint(this.point1);
+    this.drawPoint(this.point2);
 
-    const start = { x: x_min, y: y_min };
-    const end = { x: x_max, y: y_max };
-    drawLine(start, this.point1);
-    drawLine(this.point1, this.point2);
-    drawLine(this.point2, end);
+    const start = { x: this.x_min, y: this.point1.y };
+    const end = { x: this.x_max, y: this.point2.y };
+    this.drawLine(start, this.point1);
+    this.drawLine(this.point1, this.point2);
+    this.drawLine(this.point2, end);
+  }
+
+  getPosition(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      return { x: x, y: y };
   }
 
   toCanvasCoords(point) {
-    point.x -= this.x_min;
-    point.x *= this.canvas.width / (this.x_max - this.x_min);
-    point.y -= this.y_min;
-    point.y *= this.canvas.height / (this.y_max - this.y_min);
-    return point;
+    const new_x = (point.x - this.x_min) * this.canvas.width / (this.x_max - this.x_min);
+    const new_y = (this.y_max - point.y) * this.canvas.height / (this.y_max - this.y_min);
+    return { x: new_x, y: new_y };
+  }
+
+  scaleCanvasMovement(e) {
+    const new_x = e.movementX * (this.x_max - this.x_min) / this.canvas.width;
+    const new_y = -e.movementY * (this.y_max - this.y_min) / this.canvas.height;
+    return { x: new_x, y: new_y };
+  }
+
+  constrainPoint(point) {
+    point.x = Math.max(Math.min(point.x, this.x_max), this.x_min);
+    point.y = Math.max(Math.min(point.y, this.y_max), this.y_min);
+  }
+
+  hits(point, e) {
+    const hit_radius = 20; // Radius to detect hit in px
+    const point1 = this.toCanvasCoords(point);
+    const point2 = this.getPosition(e);
+    return Math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2) < hit_radius;
   }
 
   drawPoint(point) {
     const point_size = 5;
-    const point = toCanvasCoords(point);
+    const real_point = this.toCanvasCoords(point);
+    var ctx = this.canvas.getContext('2d');
 
     ctx.beginPath();
-    ctx.arc(point.x, point.y, point_size, 0, 2 * Math.PI);
+    ctx.arc(real_point.x, real_point.y, point_size, 0, 2 * Math.PI);
     ctx.fillStyle = '#00000080';
     ctx.fill();
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#000000';
     ctx.stroke();
+    ctx.closePath();
   }
 
   drawLine(point1, point2) {
-    const point1 = toCanvasCoords(point1);
-    const point2 = toCanvasCoords(point2);
+    const real_point1 = this.toCanvasCoords(point1);
+    const real_point2 = this.toCanvasCoords(point2);
+    var ctx = this.canvas.getContext('2d');
 
     ctx.beginPath();
-    ctx.moveTo(point1.x, point1.y);
-    ctx.lineTo(point2.x, point2.y);
+    ctx.moveTo(real_point1.x, real_point1.y);
+    ctx.lineTo(real_point2.x, real_point2.y);
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#000000';
     ctx.stroke();
+    ctx.closePath();
   }
 }
+
+var curve1 = new CurveSelector({
+  canvas: document.getElementById('speed_graph'),
+  x: {
+    range: [-90, 90],
+    label: 'Steering Angle (degrees)',
+  },
+  y: {
+    range: [0, 120],
+    label: 'Speed',
+  },
+});
+
+curve1.onchange = function() {
+  console.log(this.point1);
+  console.log(this.point2);
+};
