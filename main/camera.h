@@ -24,20 +24,26 @@ double map_double(double, double, double, double, double);
 // Class to read and interpret line data from the HuskyLens camera.
 class Camera {
 public:
-    Point2 origin;
-    Point2 target;
-    double angle; // Angle of line in degrees [-90, 90]
-    double steering_angle; // Angle to steer to in degrees [-90, 90]
-    double offset;
+  Point2 origin;
+  Point2 target;
+  double angle;           // Angle of line in degrees [-90, 90]
+  double steering_angle;  // Angle to steer to in degrees [-90, 90]
+  double offset;
 
-    void init();
+  Camera(VehicleState* state)
+    : state(state){};
 
-    bool old_read(); // Uses naive angle based on screen coordinates
-    bool read(); // Uses angle projected onto ground to remove distortion
+  void init();
 
-    double get_servo_angle(); // Scales steering angle to [10, 170] for servo
+  bool old_read();  // Uses naive angle based on screen coordinates
+  bool read();      // Uses angle projected onto ground to remove distortion
 
-    CameraView get_camera_view();
+  double get_servo_angle();  // Scales steering angle to [10, 170] for servo
+
+  CameraView get_camera_view();
 private:
-    HUSKYLENS camera;
+  VehicleState* state;
+  HUSKYLENS camera;
+
+  Point3 get_lookahead_point(Point3 target, Point3 origin);
 };

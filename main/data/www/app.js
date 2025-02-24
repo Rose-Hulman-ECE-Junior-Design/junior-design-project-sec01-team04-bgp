@@ -1,3 +1,5 @@
+"use strict";
+
 const api_url = '/api';
 var i = 1;
 
@@ -71,6 +73,22 @@ function add_data(values) {
   chart.update();
 }
 
+var download = document.getElementById('download');
+
+download.onclick = function() {
+  let rows = chart.data.datasets[0].data.map((_, colIndex) =>
+      chart.data.datasets.map(row => row.data[colIndex])
+  );
+
+  var writer = new CsvWriter();
+  writer.append(labels);
+  for (row of rows) {
+    writer.append(row);
+  }
+
+  writer.download();
+};
+
 var start = document.getElementById('start');
 var stop = document.getElementById('stop');
 var timer_value = document.getElementById('timer_value');
@@ -84,32 +102,30 @@ var enable = document.getElementById('enable');
 var disable = document.getElementById('disable');
 var telemetry_refresh_rate = document.getElementById('telemetry_refresh_rate');
 
-var download = document.getElementById('download');
-
 start.onclick = function() {
-  json_rpc_call('start', [], () => {
-    console.log("Started vehicle");
-  });
-
   start.disabled = true;
   stop.disabled = false;
   timed_stop.disabled = false;
+
+  json_rpc_call('start', [], () => {
+    console.log("Started vehicle");
+  });
 };
 
-function stop() {
-  json_rpc_call('stop', [], () => {
-    console.log("Stopped vehicle");
-  });
-
+function stop_fn() {
   start.disabled = false;
   stop.disabled = true;
   timed_stop.disabled = true;
+
+  json_rpc_call('stop', [], () => {
+    console.log("Stopped vehicle");
+  });
 }
 
-stop.onclick = stop;
+stop.onclick = stop_fn;
 timed_stop.onclick = function() {
   timed_stop.disabled = true;
-  window.setTimeout(stop, parseInt(timer_value.value) * 1000);
+  window.setTimeout(stop_fn, parseInt(timer_value.value) * 1000);
 };
 
 motor_speed.addEventListener('change', function() {
@@ -133,6 +149,15 @@ forward_offset.addEventListener('change', function() {
   });
 });
 
+// On startup, get default config values from vehicle
+json_rpc_call('get_defaults', [], (res) => {
+  console.log(res);
+  forward_offset.value = res.forward_offset.toString();
+  lookahead_distance.value = res.lookahead_distance.toString();
+  motor_speed.value = res.speed.toString();
+  console.log("Set default config values");
+});
+
 enable.onclick = function() {
   telemetry_enabled = true;
   enable.disabled = true;
@@ -152,7 +177,6 @@ telemetry_refresh_rate.addEventListener('change', function() {
 function get_telemetry() {
   if (telemetry_enabled) {
     json_rpc_call('telemetry', [], (res) => {
-      console.log(res);
       add_data([res.battery_v, res.current_a, res.power_w]);
     });
   }
@@ -183,7 +207,6 @@ camera_refresh_rate.addEventListener('change', function() {
 
 function get_camera_view() {
   json_rpc_call('camera_view', [], (res) => {
-    console.log(res);
     draw_camera_view(res);
   });
 
@@ -192,16 +215,65 @@ function get_camera_view() {
 
 window.setTimeout(get_camera_view, camera_timeout);
 
-download.onclick = function() {
-  let rows = chart.data.datasets[0].data.map((_, colIndex) =>
-      chart.data.datasets.map(row => row.data[colIndex])
-  );
 
-  var writer = new CsvWriter();
-  writer.append(labels);
-  for (row of rows) {
-    writer.append(row);
+class CurveSelector {
+  constructor(canvas, x_min, x_max, y_min, y_max) {
+    this.canvas = canvas;
+    this.x_min = x_min;
+    this.x_max = x_max;
+    this.y_min = y_min;
+    this.y_max = y_max;
+
+    this.point1 = { x: x_min, y: y_min };
+    this.point2 = { x: x_max, y: y_max };
   }
 
-  writer.download();
-};
+  draw() {
+    var canvas = this.canvas;
+    var ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawPoint(this.point1);
+    drawPoint(this.point2);
+
+    const start = { x: x_min, y: y_min };
+    const end = { x: x_max, y: y_max };
+    drawLine(start, this.point1);
+    drawLine(this.point1, this.point2);
+    drawLine(this.point2, end);
+  }
+
+  toCanvasCoords(point) {
+    point.x -= this.x_min;
+    point.x *= this.canvas.width / (this.x_max - this.x_min);
+    point.y -= this.y_min;
+    point.y *= this.canvas.height / (this.y_max - this.y_min);
+    return point;
+  }
+
+  drawPoint(point) {
+    const point_size = 5;
+    const point = toCanvasCoords(point);
+
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, point_size, 0, 2 * Math.PI);
+    ctx.fillStyle = '#00000080';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000000';
+    ctx.stroke();
+  }
+
+  drawLine(point1, point2) {
+    const point1 = toCanvasCoords(point1);
+    const point2 = toCanvasCoords(point2);
+
+    ctx.beginPath();
+    ctx.moveTo(point1.x, point1.y);
+    ctx.lineTo(point2.x, point2.y);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000000';
+    ctx.stroke();
+  }
+}

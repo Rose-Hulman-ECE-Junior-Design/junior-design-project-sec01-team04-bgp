@@ -4,8 +4,8 @@
 #include <math.h>
 
 void Camera::init() {
-    Wire.begin();
-    this->camera.begin(Wire);
+  Wire.begin();
+  this->camera.begin(Wire);
 }
 
 const int PX = 320;
@@ -17,9 +17,9 @@ const int sensor_width = 3.6;
 
 const int camera_height = 165;
 const double camera_dist_to_sensor = 50;
-const double camera_angle = 13 * M_PI / 60; // 39deg
+const double camera_angle = 13 * M_PI / 60;  // 39deg
 
-const double back_focal_length = 1.3; // BFL = 1.3mm, EFL = 4.6mm
+const double back_focal_length = 1.3;  // BFL = 1.3mm, EFL = 4.6mm
 
 // All in inches
 const double cam_z_min = 3.5;
@@ -45,7 +45,7 @@ double map_double(double value, double from_low, double from_high, double to_low
   }
 }
 
-const Point3 vehicle = {0, 0, -wheelbase};
+const Point3 vehicle = { 0, 0, -wheelbase };
 
 Point3 from_pixel_coords(Point2 px) {
   Point3 screen;
@@ -67,7 +67,7 @@ Point3 project_ground(Point2 screen) {
   double x_offset = cam_x_min + (((cam_x_max - cam_x_min) / (cam_z_max - cam_z_min)) * (ground.z - cam_z_min));
   ground.x = map_double(screen.x, 0, PX, -x_offset, x_offset);
   ground.y = 0;
-  
+
 
   return ground;
 }
@@ -90,37 +90,36 @@ double Camera::get_servo_angle() {
   return map_double(this->steering_angle, -26, 26, 10, 170);
 }
 
-double get_slope(Point3 target, Point3 origin){
-  if(target.x != origin.x){
+double get_slope(Point3 target, Point3 origin) {
+  if (target.x == origin.x) return 0;
   return (target.z - origin.z) / (target.x - origin.x);
-  }else{
-    return 0;
-  }
 }
 
-double get_zintercept(Point3 target, Point3 origin){
+double get_zintercept(Point3 target, Point3 origin) {
   return origin.z - get_slope(target, origin) * origin.x;
 }
 
-Point3 get_lookahead_point(Point3 target, Point3 origin){
+Point3 Camera::get_lookahead_point(Point3 target, Point3 origin) {
   Point3 lookahead;
+  double lookahead_distance = this->state->data.lookahead_distance;
+  double forward_offset = this->state->data.forward_offset;
 
   double m = get_slope(target, origin);
   double b = get_zintercept(target, origin);
   printf("m: %f, b: %f\n", m, b);
-  double discriminant = 4 * m*m * b*b - 4 * (m*m + 1) * (b*b - lookahead_distance*lookahead_distance);
+  double discriminant = 4 * m * m * b * b - 4 * (m * m + 1) * (b * b - lookahead_distance * lookahead_distance);
   if (discriminant < 0) {
     printf("DISCRIMINANT WAS NEGATIVE\n");
     target.z -= forward_offset;
     return target;
   }
 
-  if (m == 0) { // slope is NaN
-    lookahead.x = 0;               
+  if (m == 0) {  // slope is NaN
+    lookahead.x = 0;
   } else if (m > 0) {
-    lookahead.x = (-2 * m * b + sqrt(discriminant))/(2 * (m*m + 1));
+    lookahead.x = (-2 * m * b + sqrt(discriminant)) / (2 * (m * m + 1));
   } else if (m < 0) {
-    lookahead.x = (-2 * m * b - sqrt(discriminant))/(2 * (m*m + 1));
+    lookahead.x = (-2 * m * b - sqrt(discriminant)) / (2 * (m * m + 1));
   } else {
     lookahead.x = lookahead_distance;
   }
@@ -135,7 +134,7 @@ Point3 get_lookahead_point(Point3 target, Point3 origin){
 bool Camera::old_read() {
   if (this->camera.request() && this->camera.available()) {
     HUSKYLENSResult result = this->camera.read();
-    if (result.yTarget < result.yOrigin) { // Swap values if arrow is pointing down
+    if (result.yTarget < result.yOrigin) {  // Swap values if arrow is pointing down
       int tmp = result.yTarget;
       result.yTarget = result.yOrigin;
       result.yOrigin = tmp;
@@ -145,8 +144,8 @@ bool Camera::old_read() {
       result.xOrigin = tmp;
     }
 
-    this->offset = ((result.xTarget + result.xOrigin)/2) - 160;
-    this->angle = 180.0 - (std::atan2(result.yTarget - result.yOrigin, result.xTarget - result.xOrigin))*(90 / std::acos(0.0));
+    this->offset = ((result.xTarget + result.xOrigin) / 2) - 160;
+    this->angle = 180.0 - std::atan2(result.yTarget - result.yOrigin, result.xTarget - result.xOrigin) * 90 / std::acos(0.0);
 
     return true;
   } else {
@@ -155,11 +154,11 @@ bool Camera::old_read() {
 }
 
 bool Camera::read() {
-  if (!this->camera.request() || ! this->camera.available()) return false;
+  if (!this->camera.request() || !this->camera.available()) return false;
 
   HUSKYLENSResult result = this->camera.read();
-  this->target = (Point2) { result.xTarget, PY - result.yTarget };
-  this->origin = (Point2) { result.xOrigin, PY - result.yOrigin };
+  this->target = (Point2){ result.xTarget, PY - result.yTarget };
+  this->origin = (Point2){ result.xOrigin, PY - result.yOrigin };
 
   if (origin.y > target.y) {
     Serial.println("Swapping target and origin");
@@ -175,9 +174,9 @@ bool Camera::read() {
   this->angle = compute_angle(ground_target, ground_origin) * 180.0 / M_PI;
   Serial.printf("Wheelbase angle: %f, ", 180.0 / M_PI * compute_angle(ground_target, vehicle));
   Serial.printf("Lookahead distance: %f, ", distance_2d(vehicle, ground_target));
-  Point3 lookahead_point = get_lookahead_point(ground_target, ground_origin);
+  Point3 lookahead_point = this->get_lookahead_point(ground_target, ground_origin);
   this->steering_angle = compute_steering_angle(lookahead_point, vehicle) * 180.0 / M_PI;
-  
+
   Serial.printf("Angle: %f, Steering angle: %f\n", this->angle, this->steering_angle);
   Serial.printf("Lookahead Point: (%f, %f)\n", lookahead_point.x, lookahead_point.z);
 
@@ -186,6 +185,5 @@ bool Camera::read() {
 
 CameraView Camera::get_camera_view() {
   // printf("Camera view: target = (%f, %f), origin = (%f, %f)\n", this->target.x, this->target.y, this->origin.x, this->origin.y);
-  return (CameraView) { .target = this->target, .origin = this->origin };
+  return (CameraView){ .target = this->target, .origin = this->origin };
 }
-

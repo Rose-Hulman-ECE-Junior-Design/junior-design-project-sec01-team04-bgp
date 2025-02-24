@@ -1,5 +1,6 @@
 #include <ESP32Servo.h>
 #include <QuickPID.h>
+#include <LittleFS.h>
 
 #include "telemetry.h"
 #include "state.h"
@@ -13,15 +14,19 @@ Servo steering_servo;
 const int steering_servo_pin = 32;
 const int motor_servo_pin = 33;
 
-// PID objects. Variables are placeholders
+// Main loop delay
+const int loop_delay = 100;
+
+// PID object and constants
 float Input_angle, Output_angle, Setpoint_angle = 0;
 float Kp_angle = 1, Ki_angle = 0.1, Kd_angle = 0;
 QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
 
-// Telemetry, API, and camera objects
+// Telemetry, VehicleState, API, and camera objects
 Telemetry tl;
-Camera camera;
-Api api(&tl, &camera);
+VehicleState state(LittleFS);
+Camera camera(&state);
+Api api(&state, LittleFS, &tl, &camera);
 
 
 void setup() {
@@ -29,9 +34,20 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
+  // Init telemetry
   tl.init();
   Serial.println("Initialized telemetry");
-  
+
+  // Init filesystem
+  if (!LittleFS.begin(true)) {
+    Serial.println("LittleFS Mount Failed");
+    return;
+  }
+  Serial.println("Initialized filesystem");
+
+  // Read state from config file
+  state.read();
+
   api.init();
   Serial.println("Initialized API");
 
@@ -64,9 +80,7 @@ void old_update() {
   AnglePID.Compute();
 
   steering_servo.write(map_double(Output_angle, -100, 100, 10, 170));
-  motor_servo.write(speed);
-
-  delay(100);
+  motor_servo.write(state.data.speed);
 }
 
 // Update motor speed and steering angle based on pure pursuit algorithm
@@ -74,20 +88,19 @@ void update() {
   if (!camera.read()) return;
 
   steering_servo.write(camera.get_servo_angle());
-  motor_servo.write(speed);
+  motor_servo.write(state.data.speed);
 }
 
 void loop() {
-  switch (state) {
-  case VehicleState::started:
-    update();
-    // old_update();
-    delay(100);
-    break;
-  case VehicleState::stopped:
-    motor_servo.write(0);
-    steering_servo.write(90);
-    delay(100);
-    break;
+  switch (state.state) {
+    case State::started:
+      update();
+      delay(loop_delay);
+      break;
+    case State::stopped:
+      motor_servo.write(0);
+      steering_servo.write(90);
+      delay(loop_delay);
+      break;
   }
 }
