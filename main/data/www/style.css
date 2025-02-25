@@ -81,7 +81,7 @@ hr {
 .stretch {
   width: 100%;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
 }
 
@@ -121,4 +121,37 @@ body {
   background-position: -19px -19px;
   margin: 0;
   padding: 0 0 5em 0;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+
+  width: max-content;
+  max-width: 200px;
+
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  font-family: "Arial";
+  font-size: 12px;
+  padding: 5px;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  text-align: left;
+  text-wrap: wrap;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }

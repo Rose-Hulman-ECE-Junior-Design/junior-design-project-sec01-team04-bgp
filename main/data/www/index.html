@@ -49,11 +49,52 @@
       <div id="graph_container">
         <div class="graph">
           <canvas id="lookahead_distance_graph" class="bordered" width="320" height="240"></canvas>
-          <p>Lookahead Distance vs. Steering Angle</p>
+          <p>
+            Lookahead Distance
+            <span class="tooltip">
+              <svg width="12" height="12">
+                <circle cx="6" cy="6" r="6" fill="black" />
+                <text x="3" y="10" fill="white" font-size="12" font-family="Arial">?</text>
+                ?
+              </svg>
+              <span class="tooltiptext">
+                The lookahead distance is how far ahead the vehicle
+                looks to find the target point, which is the point
+                that the vehicle will attempt to steer towards.
+                <br>
+                A lower lookahead distance is desirable when
+                turning more sharply because the vehicle will turn
+                faster.
+                <br>
+                A higher lookahead distance is desirable when
+                traveling straight at higher speeds because it will
+                reduce oscillations.
+              </span>
+            </span>
+            vs. Steering Angle
+          </p>
         </div>
         <div class="graph">
           <canvas id="forward_offset_graph" class="bordered" width="320" height="240"></canvas>
-          <p>Forward Offset vs. Steering Angle</p>
+          <p>
+            Forward Offset
+            <span class="tooltip">
+              <svg width="12" height="12">
+                <circle cx="6" cy="6" r="6" fill="black" />
+                <text x="3" y="10" fill="white" font-size="12" font-family="Arial">?</text>
+                ?
+              </svg>
+              <span class="tooltiptext">
+                The forward offset is a value that makes the
+                vehicle think the target point is closer than it
+                actually is. This is necessary to ensure the
+                vehicle steers sharply enough to reach the target
+                point. The forward offset helps account for the
+                small field of view of the camera.
+              </span>
+            </span>
+            vs. Steering Angle
+          </p>
         </div>
         <div class="graph">
           <canvas id="speed_graph" class="bordered" width="320" height="240"></canvas>
