@@ -43,12 +43,3 @@ public:
   void read();
   void write();
 };
-
-// enum VehicleState {
-//   stopped,
-//   started,
-// };
-// VehicleState state = VehicleState::stopped; // Current state of the vehicle
-// int speed = 30; // Default motor speed
-// double lookahead_distance = 12; // Default lookahead distance
-// double forward_offset = 8; // Default forward offset

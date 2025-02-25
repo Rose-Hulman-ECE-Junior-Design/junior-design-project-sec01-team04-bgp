@@ -26,14 +26,14 @@ static void handle_stop(struct jsonrpc_request* r) {
 
 CurveData* Api::get_curve(int curve) {
   switch (curve) {
-  case 0:
-    return &this->state->data.speed;
-  case 1:
-    return &this->state->data.lookahead_distance;
-  case 2:
-    return &this->state->data.forward_offset;
-  default:
-    return nullptr;
+    case 0:
+      return &this->state->data.speed;
+    case 1:
+      return &this->state->data.lookahead_distance;
+    case 2:
+      return &this->state->data.forward_offset;
+    default:
+      return nullptr;
   }
 }
 
@@ -74,16 +74,15 @@ static void handle_get_defaults(struct jsonrpc_request* r) {
 
   // Serial.printf("Sending config defaults: ld = %f, fo = %f, speed = %d\n", data.lookahead_distance, data.forward_offset, data.speed);
   jsonrpc_return_success(r,
-    "{%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g}",
-    "x_min", data->x_min,
-    "x_start", data->x_start,
-    "x_end", data->x_end,
-    "x_max", data->x_max,
-    "y_min", data->y_min,
-    "y_start", data->y_start,
-    "y_end", data->y_end,
-    "y_max", data->y_max
-  );
+                         "{%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g,%Q:%g}",
+                         "x_min", data->x_min,
+                         "x_start", data->x_start,
+                         "x_end", data->x_end,
+                         "x_max", data->x_max,
+                         "y_min", data->y_min,
+                         "y_start", data->y_start,
+                         "y_end", data->y_end,
+                         "y_max", data->y_max);
 }
 
 TelemetryData Api::telemetry() {
@@ -110,7 +109,8 @@ void Api::init() {
   WiFi.mode(WIFI_AP);
   if (!WiFi.softAP(ssid, password)) {
     Serial.println("WiFi AP failed");
-    while (true);
+    while (true)
+      ;
   }
   delay(1000);
 

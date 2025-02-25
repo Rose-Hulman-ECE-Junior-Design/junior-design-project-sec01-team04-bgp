@@ -98,10 +98,7 @@ var start = document.getElementById('start');
 var stop = document.getElementById('stop');
 var timer_value = document.getElementById('timer_value');
 var timed_stop = document.getElementById('timed_stop');
-var motor_speed = document.getElementById('motor_speed');
 var camera_refresh_rate = document.getElementById('telemetry_refresh_rate');
-var lookahead_distance = document.getElementById('lookahead_distance');
-var forward_offset = document.getElementById('forward_offset');
 
 var enable = document.getElementById('enable');
 var disable = document.getElementById('disable');
@@ -133,36 +130,6 @@ timed_stop.onclick = function() {
   timed_stop.disabled = true;
   window.setTimeout(stop_fn, parseInt(timer_value.value) * 1000);
 };
-
-motor_speed.addEventListener('change', function() {
-  const speed = parseInt(this.value, 10);
-  json_rpc_call('set_speed', [speed], () => {
-    console.log("Set speed to " + speed);
-  });
-});
-
-lookahead_distance.addEventListener('change', function() {
-  const distance = parseInt(this.value, 10);
-  json_rpc_call('set_lookahead_distance', [distance], () => {
-    console.log("Set lookahead distance to " + distance);
-  });
-});
-
-forward_offset.addEventListener('change', function() {
-  const forward_offset = parseInt(this.value, 10);
-  json_rpc_call('set_forward_offset', [forward_offset], () => {
-    console.log("Set forward offset to " + forward_offset);
-  });
-});
-
-// On startup, get default config values from vehicle
-// json_rpc_call('get_defaults', [], (res) => {
-  // console.log(res);
-  // forward_offset.value = res.forward_offset.toString();
-  // lookahead_distance.value = res.lookahead_distance.toString();
-  // motor_speed.value = res.speed.toString();
-  // console.log("Set default config values");
-// });
 
 enable.onclick = function() {
   telemetry_enabled = true;

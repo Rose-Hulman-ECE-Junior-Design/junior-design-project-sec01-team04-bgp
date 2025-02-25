@@ -35,8 +35,7 @@ public:
 
   void init();
 
-  bool old_read();  // Uses naive angle based on screen coordinates
-  bool read();      // Uses angle projected onto ground to remove distortion
+  bool read();  // Uses angle projected onto ground to remove distortion
 
   double get_servo_angle();  // Scales steering angle to [10, 170] for servo
 
