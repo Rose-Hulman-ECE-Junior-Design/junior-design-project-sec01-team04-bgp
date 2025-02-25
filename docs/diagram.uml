@@ -1,6 +1,7 @@
 @startuml
 class Api {
     -server: AsyncWebServer
+    -fs: FS&
 
     +init()
     +start()
@@ -8,16 +9,45 @@ class Api {
     +telemetry(): TelemetryData
 }
 
-enum VehicleState {
-    stopped,
-    started,
+Api -down-> VehicleState
+Api -down-> Telemetry
+Api -down-> Camera
+
+enum State {
+    stopped
+    started
 }
+
+class CurveData {
+    +x_min: double
+    +x_start: double
+    +x_end: double
+    +x_max: double
+    +y_min: double
+    +y_start: double
+    +y_end: double
+    +y_max: double
+}
+
+class Data {}
+
+Data ->"3" CurveData
 
 class TelemetryData {
     +current_ma: float
     +battery_v: float
     +power_mw: float
 }
+
+class VehicleState {
+    +fs: FS&
+
+    +read()
+    +write()
+}
+
+VehicleState -> State
+VehicleState -> Data
 
 class Telemetry {
     -ina219: Adafruit_INA219
@@ -26,14 +56,33 @@ class Telemetry {
     +read(): TelemetryData
 }
 
-Api -> VehicleState
-Api -> Telemetry
+class Point3 {
+    +x: double
+    +y: double
+    +z: double
+}
+
+class Point2 {
+    +x: double
+    +y: double
+}
+
+class CameraView {}
+
+CameraView ->"2" Point2
 
 class Camera {
+    +angle: double
+    +steering_angle: double
+    +offset: double
     -camera: HUSKYLENS
 
     +init()
     +read(): bool
     +get_servo_angle(): double
+    +get_camera_view(): CameraView
 }
+
+Camera -> VehicleState
+Camera -left->"2" Point2
 @enduml
