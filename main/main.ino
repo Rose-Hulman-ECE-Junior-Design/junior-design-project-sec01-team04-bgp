@@ -15,14 +15,14 @@ const int steering_servo_pin = 32;
 const int motor_servo_pin = 33;
 
 // Main loop delay
-const int loop_delay = 100;
+const int loop_delay = 500;
 
 // PID object and constants
 float Input_angle, Output_angle, Setpoint_angle = 0;
 float Kp_angle = 1, Ki_angle = 0.1, Kd_angle = 0;
 QuickPID AnglePID(&Input_angle, &Output_angle, &Setpoint_angle);
 
-// Telemetry, VehicleState, API, and camera objects
+// Telemetry, VehicleState, API, and Camera objects
 Telemetry tl;
 VehicleState state(LittleFS);
 Camera camera(&state);
@@ -44,6 +44,7 @@ void setup() {
     return;
   }
   Serial.println("Initialized filesystem");
+  // LittleFS.remove("/config.txt"); // Remove existing config file
 
   // Read state from config file
   state.read();
@@ -80,7 +81,7 @@ void old_update() {
   AnglePID.Compute();
 
   steering_servo.write(map_double(Output_angle, -100, 100, 10, 170));
-  motor_servo.write(state.data.speed.apply(Output_angle));
+  motor_servo.write(state.data.speed.apply(abs(Output_angle)));
 }
 
 // Update motor speed and steering angle based on pure pursuit algorithm
@@ -88,8 +89,10 @@ void update() {
   if (!camera.read()) return;
 
   double angle = camera.get_servo_angle();
+  double speed = state.data.speed.apply(abs(camera.steering_angle));
   steering_servo.write(angle);
-  motor_servo.write(state.data.speed.apply(angle));
+  motor_servo.write(speed);
+  Serial.printf("Angle = %f, Speed = %f\n", camera.steering_angle, speed);
 }
 
 void loop() {

@@ -156,13 +156,13 @@ forward_offset.addEventListener('change', function() {
 });
 
 // On startup, get default config values from vehicle
-json_rpc_call('get_defaults', [], (res) => {
-  console.log(res);
-  forward_offset.value = res.forward_offset.toString();
-  lookahead_distance.value = res.lookahead_distance.toString();
-  motor_speed.value = res.speed.toString();
-  console.log("Set default config values");
-});
+// json_rpc_call('get_defaults', [], (res) => {
+  // console.log(res);
+  // forward_offset.value = res.forward_offset.toString();
+  // lookahead_distance.value = res.lookahead_distance.toString();
+  // motor_speed.value = res.speed.toString();
+  // console.log("Set default config values");
+// });
 
 enable.onclick = function() {
   telemetry_enabled = true;
@@ -228,10 +228,11 @@ class CurveSelector {
   constructor(opts) {
     this.canvas = opts.canvas;
     this.curve_number = opts.curve_number;
-    this.x_label = opts.x.label;
-    this.y_label = opts.y.label;
+    this.x_label = opts.x_label;
+    this.y_label = opts.y_label;
 
     json_rpc_call('get_defaults', [this.curve_number], (res) => {
+      console.log(res);
       this.x_min = res.x_min;
       this.x_max = res.x_max;
       this.y_min = res.y_min;
@@ -239,12 +240,14 @@ class CurveSelector {
 
       this.point1 = { x: res.x_start, y: res.y_start };
       this.point2 = { x: res.x_end, y: res.y_end };
+
+      this.draw();
     });
 
     this.onchange = () => {
       json_rpc_call('set_curve', [this.curve_number, this.point1.x, this.point2.x, this.point1.y, this.point2.y], () => {
         console.log("Set curve " + this.curve_number);
-      };
+      });
     };
 
     var drag_point = null;
@@ -278,8 +281,6 @@ class CurveSelector {
         this.onchange();
       }
     }
-
-    this.draw();
   }
 
   getPosition(event) {

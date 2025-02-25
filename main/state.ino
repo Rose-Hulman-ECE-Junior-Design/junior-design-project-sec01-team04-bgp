@@ -9,8 +9,8 @@ void CurveData::update(double x_start, double x_end, double y_start, double y_en
 
 double CurveData::apply(double x) {
   x = constrain(x, this->x_min, this->x_max);
-  double scaled = this->y_min + (x - this->x_min) * (this->y_end - this->y_start) / (this->x_end - this->x_start);
-  return constrain(scaled, this->y_start, this->y_end);
+  double scaled = this->y_start + (x - this->x_min) * (this->y_end - this->y_start) / (this->x_end - this->x_start);
+  return constrain(scaled, min(this->y_start, this->y_end), max(this->y_start, this->y_end));
 }
 
 void VehicleState::read() {

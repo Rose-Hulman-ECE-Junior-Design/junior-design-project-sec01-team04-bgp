@@ -14,7 +14,7 @@ static void handle_start(struct jsonrpc_request* r) {
 }
 
 void Api::stop() {
-  this->state->state = State::started;
+  this->state->state = State::stopped;
 }
 
 static void handle_stop(struct jsonrpc_request* r) {
@@ -40,7 +40,6 @@ CurveData* Api::get_curve(int curve) {
 void Api::set_curve(CurveData* curve_data, double x_start, double x_end, double y_start, double y_end) {
   curve_data->update(x_start, x_end, y_start, y_end);
   this->state->write();
-  Serial.println("Updated state!");
 }
 
 static void handle_set_curve(struct jsonrpc_request* r) {
