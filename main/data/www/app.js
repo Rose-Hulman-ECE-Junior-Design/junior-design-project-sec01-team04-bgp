@@ -64,16 +64,41 @@ var chart = new Chart(document.getElementById('chart'), {
   },
 });
 
+var power_usage = document.getElementById('power_usage');
+
+function integrate(data) {
+  var result = 0;
+
+  if (data.length >= 1) {
+    result += data[0];
+  }
+  if (data.length >= 2) {
+    result += data[data.length - 1];
+  }
+  if (data.length >= 3) {
+    for (let i = 1; i < data.length - 1; i++) {
+      result += 2 * data[i];
+    }
+  }
+  result *= parseInt(telemetry_refresh_rate.value, 10) / 2000;
+
+  return result;
+}
+
 function add_data(values) {
   values.forEach((value, i) => {
     chart.data.datasets[i].data.push(value);
   });
+
+  power_usage.innerHTML = integrate(chart.data.datasets[2].data);
 
   chart.data.labels.push(new Date().toLocaleTimeString());
   chart.update();
 }
 
 function clear_fn() {
+  power_usage.innerHTML = 0;
+  chart.data.labels.length = 0;
   chart.data.datasets.forEach(dataset => { dataset.data.length = 0; });
   chart.update();
 }
@@ -98,7 +123,7 @@ var start = document.getElementById('start');
 var stop = document.getElementById('stop');
 var timer_value = document.getElementById('timer_value');
 var timed_stop = document.getElementById('timed_stop');
-var camera_refresh_rate = document.getElementById('telemetry_refresh_rate');
+var camera_refresh_rate = document.getElementById('camera_refresh_rate');
 
 var enable = document.getElementById('enable');
 var disable = document.getElementById('disable');
