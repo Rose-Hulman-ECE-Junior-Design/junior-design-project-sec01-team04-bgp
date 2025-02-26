@@ -15,7 +15,7 @@ const int steering_servo_pin = 32;
 const int motor_servo_pin = 33;
 
 // Main loop delay
-const int loop_delay = 100;
+const int loop_delay = 50;
 
 // Telemetry, VehicleState, API, and Camera objects
 Telemetry tl;
@@ -38,6 +38,7 @@ void setup() {
     Serial.println("LittleFS Mount Failed");
     return;
   }
+  // LittleFS.remove("/config.txt");
   Serial.println("Initialized filesystem");
 
   // Read state from config file
@@ -68,7 +69,7 @@ void update() {
   double speed = state.data.speed.apply(abs(camera.steering_angle));
   steering_servo.write(angle);
   motor_servo.write(speed);
-  Serial.printf("Angle = %f, Speed = %f\n", camera.steering_angle, speed);
+  Serial.printf("Angle = %f, Steering Angle = %f, Speed = %f\n", camera.angle, camera.steering_angle, speed);
 }
 
 void loop() {

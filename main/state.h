@@ -24,7 +24,7 @@ typedef struct {
 
 typedef struct {
   CurveData speed = { 0, 0, 90, 90, 0, 30, 30, 120 };              // Default motor speed
-  CurveData lookahead_distance = { 0, 0, 90, 90, 0, 10, 10, 30 };  // Default lookahead distance
+  CurveData lookahead_distance = { 0, 0, 90, 90, 0, 10, 10, 50 };  // Default lookahead distance
   CurveData forward_offset = { 0, 0, 90, 90, 0, 4, 4, 30 };        // Default forward offset
 } Data;
 
