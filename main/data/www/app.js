@@ -64,7 +64,10 @@ var chart = new Chart(document.getElementById('chart'), {
   },
 });
 
-var power_usage = document.getElementById('power_usage');
+var energy_usage = document.getElementById('energy_usage');
+var energy_remaining = document.getElementById('energy_remaining');
+const total_energy = 4 * 0.5 * 120 / 4 * (12 ** 2); // 1/2 CV^2, C = 120 / 4 capacitors, V = 12 V
+energy_remaining.innerHTML = total_energy;
 
 function integrate(data) {
   var result = 0;
@@ -90,14 +93,17 @@ function add_data(values) {
     chart.data.datasets[i].data.push(value);
   });
 
-  power_usage.innerHTML = integrate(chart.data.datasets[2].data);
+  const energy = integrate(chart.data.datasets[2].data);
+  energy_usage.innerHTML = energy;
+  energy_remaining.innerHTML = total_energy - energy;
 
   chart.data.labels.push(new Date().toLocaleTimeString());
   chart.update();
 }
 
 function clear_fn() {
-  power_usage.innerHTML = 0;
+  energy_usage.innerHTML = 0;
+  energy_remaining.innerHTML = total_energy;
   chart.data.labels.length = 0;
   chart.data.datasets.forEach(dataset => { dataset.data.length = 0; });
   chart.update();
